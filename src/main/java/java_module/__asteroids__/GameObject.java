@@ -1,7 +1,6 @@
 package java_module.__asteroids__;
 
 import javafx.geometry.Point2D;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 

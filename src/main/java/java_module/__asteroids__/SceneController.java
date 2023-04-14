@@ -6,7 +6,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
@@ -20,7 +19,7 @@ public class SceneController extends SceneFiller{
     public static int HEIGHT = 600;
     // lives tally
     public int LIVES;
-    // highscore variable used to update file
+    // high-score variable used to update file
     public int highscore;
     private final AtomicInteger points = new AtomicInteger(); // dynamically count points during the game loop
     public void home(Stage stage){
@@ -52,9 +51,9 @@ public class SceneController extends SceneFiller{
 
         // create and add all static objects for the screen
         Pane pane = createBackground();
-        Label title = createLabel("Asteroids", WIDTH/3.5, HEIGHT/5, "header");
-        Button start = createButton("start", WIDTH/3, HEIGHT/2.2);
-        Button info = createButton("info", WIDTH/3, HEIGHT/1.7);
+        Label title = createLabel("Asteroids", WIDTH/3.5, HEIGHT/5.0, "header");
+        Button start = createButton("start", WIDTH/3.0, HEIGHT/2.2);
+        Button info = createButton("info", WIDTH/3.0, HEIGHT/1.7);
         Label fame = createLabel("high-score: "+highscore, WIDTH/3.5, HEIGHT/1.3, "fame");
 
         start.setOnAction(actionEvent -> startGame(stage));
@@ -67,7 +66,7 @@ public class SceneController extends SceneFiller{
 
         Scene scene = new Scene(pane);
         // link stylesheet
-        scene.getStylesheets().add(SceneController.class.getResource("stylesheet.css").toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(SceneController.class.getResource("stylesheet.css")).toExternalForm());
         stage.setTitle("Asteroids - Home");
         stage.setScene(scene);
         stage.show();
@@ -84,7 +83,7 @@ public class SceneController extends SceneFiller{
         Button exit = createButton("< exit", 15, 550);
         Label level = createLabel("leval 1", 20, 400, "level");
         Label score = createLabel("score: 0", 20, 510, "score");
-        Label lives = createLabel("lives: ♥︎ ♥︎ ♥︎", WIDTH/3, 550, "lives");
+        Label lives = createLabel("lives: ♥︎ ♥︎ ♥︎", WIDTH/3.0, 550, "lives");
 
         // set button functionality
         exit.setOnAction(actionEvent -> home(stage));
@@ -99,6 +98,7 @@ public class SceneController extends SceneFiller{
         asteroidList.add(a);
 
         // add all objects to pane
+        pane.getChildren().add(player.getCharacter());
         asteroidList.forEach(asteroid -> pane.getChildren().add(asteroid.getCharacter()));
         staticElementsList.forEach(node -> pane.getChildren().add(node));
 
@@ -108,20 +108,8 @@ public class SceneController extends SceneFiller{
         stage.setScene(scene);
         stage.show();
 
-        traceKeypress(scene);
-
-        AnimationTimer game_loop = new AnimationTimer(){
-            public void handle(long now){
-
-            }
-        };
-
-    }
-    // track key presses and update hash map accordingly:
-    public void traceKeypress(Scene scene){
         Map<KeyCode, Boolean> pressedKeys = new HashMap<>();
         Map<KeyCode, Boolean> pressedOnce = new HashMap<>();
-
         scene.setOnKeyPressed(KeyEvent -> {
             pressedKeys.put(KeyEvent.getCode(), Boolean.TRUE);
             pressedOnce.put(KeyEvent.getCode(), Boolean.TRUE);
@@ -130,14 +118,120 @@ public class SceneController extends SceneFiller{
             pressedKeys.put(KeyEvent.getCode(), Boolean.FALSE);
             pressedOnce.put(KeyEvent.getCode(), Boolean.FALSE);
         });
+
+        stage.setScene(scene);
+        stage.show();
+
+        AnimationTimer gameLoop = new AnimationTimer(){
+            public void handle(long now){
+                if (pressedOnce.getOrDefault(KeyCode.K, false)){
+                    System.out.println("K pressed");
+                    Alien enemy = Alien.spawnRandom();
+                    enemy.update(player);
+                    pane.getChildren().add(enemy.shootBullet().getCharacter());
+                    pane.getChildren().add(enemy.getCharacter());
+                    enemy.move();
+                    pressedOnce.clear();
+                }
+                if (pressedKeys.getOrDefault(KeyCode.A, false)) {
+                    System.out.println("A pressed");
+                    player.turnLeft();
+                }
+                if (pressedKeys.getOrDefault(KeyCode.D, false)) {
+                    System.out.println("D pressed");
+                    player.turnRight();
+                }
+                if (pressedKeys.getOrDefault(KeyCode.W, false)) {
+                    System.out.println("W pressed");
+                    player.accelerate();
+                }
+                // use separate hash map to read bullet call - clear on input to shoot only one bullet on key press rather than a whole stream
+                if (pressedOnce.getOrDefault(KeyCode.E, false)) {
+                    System.out.println("E pressed");
+                    Bullet bullet = new Bullet((int) player.getCharacter().getTranslateX(), (int) player.getCharacter().getTranslateY());
+                    bullet.getCharacter().setRotate(player.getCharacter().getRotate());
+                    bulletList.add(bullet);
+
+                    bullet.accelerate();
+                    bullet.setMovement(bullet.getMovement().normalize().multiply(3));
+
+                    // add player velocity to bullet so that bullet is always faster than ship
+                    var v = player.getMovement().add(bullet.getMovement());
+                    bullet.setMovement(v);
+                    pane.getChildren().add(bullet.getCharacter());
+                    pressedOnce.clear();
+                }
+                if (pressedKeys.getOrDefault(KeyCode.J, false)){
+                    System.out.println("J pressed");
+                    // flies all around the screen due to animationTimer ------------ wip ------------
+                    player.hyperspaceJump();
+                }
+
+                // call all objects to move - bullet has its own method to disappear at edge of screen unlike other objects
+                player.move();
+                asteroidList.forEach(Asteroid::move);
+                bulletList.forEach(Bullet::move);
+
+                // check if any bullets hit asteroids - increase score if true
+                bulletList.forEach(bullet -> asteroidList.forEach(asteroid -> {
+                    if (bullet.checkHit(asteroid.getCharacter())){
+                        bullet.setLife(false);
+                        asteroid.setLife(false);
+//                            trial shrapnel for collision animation ------------- wip --------------
+                        var s1 = new Fragment(bullet.getCharacter().getTranslateX(), bullet.getCharacter().getTranslateY());
+                        var s2 = new Fragment(asteroid.getCharacter().getTranslateX(), asteroid.getCharacter().getTranslateY());
+                        pane.getChildren().add(s1.getCharacter());
+                        pane.getChildren().add(s2.getCharacter());
+                        s1.move();
+                        s2.move();
+                        score.setText("Score: "+ points.addAndGet(10));
+                    }
+                }));
+                // remove bullets and asteroids from game if they collide
+                bulletList.stream()
+                        .filter(bullet -> !bullet.isAlive())
+                        .forEach(bullet -> pane.getChildren().remove(bullet.getCharacter()));
+                bulletList.removeAll(bulletList.stream()
+                        .filter(bullet -> !bullet.isAlive())
+                        .toList());
+
+                asteroidList.stream()
+                        .filter(asteroid -> !asteroid.isAlive())
+                        .forEach(asteroid -> pane.getChildren().remove(asteroid.getCharacter()));
+                asteroidList.removeAll(asteroidList.stream()
+                        .filter(asteroid -> !asteroid.isAlive())
+                        .toList());
+                // check if player hit asteroid - activate respawn and decrease lives
+                asteroidList.forEach(asteroid ->{
+                    if(asteroid.checkHit(player.getCharacter()) && !player.respawnCalled){
+                        LIVES -=1;
+                        player.respawn(WIDTH/2,HEIGHT/2);
+                    }
+                });
+                if (player.isAlive() && LIVES==2){
+                    lives.setText("lives: ♥︎ ♥︎ -");
+                } else if (player.isAlive() && LIVES==1){
+                    lives.setText("lives: ♥︎ - -");
+                } else if(player.isAlive() && LIVES==0){
+                    lives.setText("lives: - - -");
+                    player.setLife(false);
+                }
+                if (!player.isAlive()) {
+                    stop();
+                    System.out.println("you died");
+                    gameOver(stage);
+                }
+            }
+        };
+        gameLoop.start();
     }
 
     // method to show information screen for game:
     public void info(Stage stage){
         // create all static objects
         Pane pane = createBackground();
-        Label title = createLabel("Game Info", WIDTH/3.5, HEIGHT/5,"header");
-        Label info = createLabel("move:\t\tA & D\nthrust:\t\tW\nshoot:\t\tE\nhyperjump:\tJ", WIDTH/3, HEIGHT/2.3, "info");
+        Label title = createLabel("Game Info", WIDTH/3.5, HEIGHT/5.0,"header");
+        Label info = createLabel("move:\t\tA & D\nthrust:\t\tW\nshoot:\t\tE\nhyperjump:\tJ", WIDTH/3.0, HEIGHT/2.3, "info");
         Button back = createButton("< back", 15, 550);
         Button reset = createButton("reset highscore", 40, 500);
 
@@ -159,7 +253,7 @@ public class SceneController extends SceneFiller{
         staticElementsList.forEach(node -> pane.getChildren().add(node));
 
         Scene scene = new Scene(pane);
-        scene.getStylesheets().add(SceneController.class.getResource("stylesheet.css").toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(SceneController.class.getResource("stylesheet.css")).toExternalForm());
         stage.setTitle("Asteroids - Game Info");
         stage.setScene(scene);
         stage.show();
@@ -169,21 +263,19 @@ public class SceneController extends SceneFiller{
     public void gameOver(Stage stage){
 
         // set new highscore if higher than previous
-        if (points != null){
-            int currentScore = points.get();
-            try{
-                if (currentScore > highscore){
-                    PrintWriter writer = new PrintWriter("highscores.txt");
-                    writer.println(currentScore);
-                    writer.close();}
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            }
+        int currentScore = points.get();
+        try{
+            if (currentScore > highscore){
+                PrintWriter writer = new PrintWriter("highscores.txt");
+                writer.println(currentScore);
+                writer.close();}
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
         // create all static objects
         Pane pane = createBackground();
-        Label title = createLabel("Game Over", WIDTH/3.5, HEIGHT/5,"overHeader");
-        Label scoreboard = createLabel("score: "+points.get(), WIDTH/3, HEIGHT/2.3, "scoreboard");
+        Label title = createLabel("Game Over", WIDTH/3.5, HEIGHT/5.0,"overHeader");
+        Label scoreboard = createLabel("score: "+points.get(), WIDTH/3.0, HEIGHT/2.3, "scoreboard");
         Button home = createButton("< home", 15, 550);
 
         //set button functionality
