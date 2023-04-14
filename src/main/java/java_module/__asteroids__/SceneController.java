@@ -94,8 +94,11 @@ public class SceneController extends SceneFiller{
         Ship player = new Ship(WIDTH/2, HEIGHT/2);
         LIVES = 3;
 
-        Asteroid a = new Asteroid(200, 100,AsteroidSizes.MEDIUM);
-        asteroidList.add(a);
+        for (int i=0; i<20; i++){
+            AsteroidSizes size = AsteroidSizes.values()[new Random().nextInt(AsteroidSizes.values().length)];
+            Asteroid a = new Asteroid(200, 100, size);
+            asteroidList.add(a);
+        }
 
         // add all objects to pane
         pane.getChildren().add(player.getCharacter());
@@ -114,13 +117,11 @@ public class SceneController extends SceneFiller{
             pressedKeys.put(KeyEvent.getCode(), Boolean.TRUE);
             pressedOnce.put(KeyEvent.getCode(), Boolean.TRUE);
         });
-        scene.setOnKeyPressed(KeyEvent -> {
+        scene.setOnKeyReleased(KeyEvent -> {
             pressedKeys.put(KeyEvent.getCode(), Boolean.FALSE);
             pressedOnce.put(KeyEvent.getCode(), Boolean.FALSE);
         });
 
-        stage.setScene(scene);
-        stage.show();
 
         AnimationTimer gameLoop = new AnimationTimer(){
             public void handle(long now){
@@ -287,6 +288,7 @@ public class SceneController extends SceneFiller{
         staticElementsList.forEach(node -> pane.getChildren().add(node));
 
         Scene scene = new Scene(pane);
+        scene.getStylesheets().add(Objects.requireNonNull(SceneController.class.getResource("stylesheet.css")).toExternalForm());
         stage.setTitle("Asteroids - Game Over");
         stage.setScene(scene);
         stage.show();
