@@ -60,7 +60,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>java_module.__asteroids__/java_module.__asteroids__.HelloApplication</mainClass>
+                            <mainClass>java_module.__asteroids__/java_module.__asteroids__.main</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>
