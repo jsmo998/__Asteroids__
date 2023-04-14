@@ -1,6 +1,7 @@
 package java_module.__asteroids__;
 
 import javafx.geometry.Point2D;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
@@ -9,8 +10,8 @@ public class GameObject implements Movement{
     private Point2D movement; // direction and speed of object
     private final Point2D startHere = new Point2D(0,0); // starting position
     private boolean isAlive; // flag to check life
-    private final ScreenTime time;
-    public GameObject(Polygon polygon, double x, double y, String s, ScreenTime time){
+    private final ScreenUse time;
+    public GameObject(Polygon polygon, double x, double y, String s, ScreenUse time){
         // constructor creates new Polygon for all objects in game
         this.character = polygon;
         this.character.setTranslateX(x);
@@ -44,6 +45,8 @@ public class GameObject implements Movement{
                 this.character.setTranslateY(this.character.getTranslateY() + this.movement.getY());
                 break;
             case INFINITE:
+                this.character.setTranslateX(this.character.getTranslateX() + this.movement.getX());
+                this.character.setTranslateY(this.character.getTranslateY() + this.movement.getY());
                 // infinite items loop through the edges of the screen
                 if(this.character.getTranslateX() < 0){
                     this.character.setTranslateX(this.character.getTranslateX() + SceneController.WIDTH);
@@ -57,6 +60,7 @@ public class GameObject implements Movement{
                 if(this.character.getTranslateY() > SceneController.HEIGHT){
                     this.character.setTranslateY(this.character.getTranslateY() % SceneController.HEIGHT);
                 }
+                break;
         }
     }
     public void accelerate(){
@@ -92,5 +96,14 @@ public class GameObject implements Movement{
     public void setLife(boolean b){
         // set flag value for life
         isAlive = b;
+    }
+    public void setLocation(int x, int y){
+        this.getCharacter().setTranslateX(x);
+        this.getCharacter().setTranslateY(y);
+    }
+    public Point2D getLocation(){
+        double x = this.character.getTranslateX();
+        double y = this.character.getTranslateY();
+        return new Point2D(x,y);
     }
 }

@@ -1,6 +1,6 @@
 package java_module.__asteroids__;
 
-public enum ScreenTime {
+public enum ScreenUse {
     INFINITE,
     SINGULAR
 }

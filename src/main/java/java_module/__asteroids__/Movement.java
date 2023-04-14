@@ -1,5 +1,7 @@
 package java_module.__asteroids__;
 
+import javafx.scene.layout.Pane;
+
 public interface Movement {
     // this interface defines the ways a GameObject must be able to be manipulated
     void turnLeft();
