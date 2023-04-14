@@ -10,7 +10,8 @@ public class main extends Application {
     public void start(Stage stage) throws FileNotFoundException{
         //launch game from here
         var s = new SceneController();
-        s.home(stage);
+//        s.home(stage);
+        s.info(stage);
     }
     public static void main(String[] args){launch(args);}
 }

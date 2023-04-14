@@ -11,10 +11,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SceneController extends SceneFiller{
@@ -88,12 +85,11 @@ public class SceneController extends SceneFiller{
         Label level = createLabel("leval 1", 20, 400, "level");
         Label score = createLabel("score: 0", 20, 510, "score");
         Label lives = createLabel("lives: ♥︎ ♥︎ ♥︎", WIDTH/3, 550, "lives");
-        staticElementsList.add(exit);
-        staticElementsList.add(level);
-        staticElementsList.add(score);
-        staticElementsList.add(lives);
 
+        // set button functionality
         exit.setOnAction(actionEvent -> home(stage));
+        // keep all static objects in list and add to pane
+        Collections.addAll(staticElementsList, exit, level, score, lives);
 
         // create player at center
         Ship player = new Ship(WIDTH/2, HEIGHT/2);
@@ -102,12 +98,13 @@ public class SceneController extends SceneFiller{
         Asteroid a = new Asteroid(200, 100,AsteroidSizes.MEDIUM);
         asteroidList.add(a);
 
+        // add all objects to pane
         asteroidList.forEach(asteroid -> pane.getChildren().add(asteroid.getCharacter()));
         staticElementsList.forEach(node -> pane.getChildren().add(node));
 
         Scene scene = new Scene(pane);
         stage.setTitle("Asteroids");
-        scene.getStylesheets().add(SceneController.class.getResource("stylesheet.css").toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(SceneController.class.getResource("stylesheet.css")).toExternalForm());
         stage.setScene(scene);
         stage.show();
 
@@ -120,8 +117,8 @@ public class SceneController extends SceneFiller{
         };
 
     }
+    // track key presses and update hash map accordingly:
     public void traceKeypress(Scene scene){
-        // track key presses and update hash map accordingly
         Map<KeyCode, Boolean> pressedKeys = new HashMap<>();
         Map<KeyCode, Boolean> pressedOnce = new HashMap<>();
 
@@ -134,20 +131,17 @@ public class SceneController extends SceneFiller{
             pressedOnce.put(KeyEvent.getCode(), Boolean.FALSE);
         });
     }
-    public void info(Stage stage){
-        // method to show information screen for game
-        List<Node> static_elements_list = new ArrayList<>();
 
+    // method to show information screen for game:
+    public void info(Stage stage){
+        // create all static objects
         Pane pane = createBackground();
         Label title = createLabel("Game Info", WIDTH/3.5, HEIGHT/5,"header");
         Label info = createLabel("move:\t\tA & D\nthrust:\t\tW\nshoot:\t\tE\nhyperjump:\tJ", WIDTH/3, HEIGHT/2.3, "info");
         Button back = createButton("< back", 15, 550);
         Button reset = createButton("reset highscore", 40, 500);
-        static_elements_list.add(title);
-        static_elements_list.add(info);
-        static_elements_list.add(back);
-        static_elements_list.add(reset);
 
+        // set button functionality
         back.setOnAction(actionEvent -> home(stage));
         reset.setOnAction(actionEvent -> {
             try {
@@ -159,18 +153,20 @@ public class SceneController extends SceneFiller{
             }
         });
 
-        static_elements_list.forEach(node -> pane.getChildren().add(node));
+        // keep all static objects in list and add to pane
+        List<Node> staticElementsList = new ArrayList<>();
+        Collections.addAll(staticElementsList, title, info, back, reset);
+        staticElementsList.forEach(node -> pane.getChildren().add(node));
 
         Scene scene = new Scene(pane);
-        scene.getStylesheets().add(Scene.class.getResource("stylesheet.css").toExternalForm());
+        scene.getStylesheets().add(SceneController.class.getResource("stylesheet.css").toExternalForm());
         stage.setTitle("Asteroids - Game Info");
         stage.setScene(scene);
         stage.show();
-
     }
+
+    // screen to display when game over:
     public void gameOver(Stage stage){
-        // screen to display when game over
-        List<Node> static_elements_list = new ArrayList<>();
 
         // set new highscore if higher than previous
         if (points != null){
@@ -184,17 +180,19 @@ public class SceneController extends SceneFiller{
                 throw new RuntimeException(e);
             }
         }
+        // create all static objects
         Pane pane = createBackground();
         Label title = createLabel("Game Over", WIDTH/3.5, HEIGHT/5,"overHeader");
         Label scoreboard = createLabel("score: "+points.get(), WIDTH/3, HEIGHT/2.3, "scoreboard");
         Button home = createButton("< home", 15, 550);
-        static_elements_list.add(title);
-        static_elements_list.add(scoreboard);
-        static_elements_list.add(home);
 
+        //set button functionality
         home.setOnAction(actionEvent -> home(stage));
 
-        static_elements_list.forEach(node -> pane.getChildren().add(node));
+        // keep all static objects in list and add to pane
+        List<Node> staticElementsList = new ArrayList<>();
+        Collections.addAll(staticElementsList, title, scoreboard, home);
+        staticElementsList.forEach(node -> pane.getChildren().add(node));
 
         Scene scene = new Scene(pane);
         stage.setTitle("Asteroids - Game Over");

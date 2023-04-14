@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
 
 public class Fragment extends GameObject{
     // creates breaking fragments as collision animation
-    public double time_to_live;
-    private double rotation;
-    private LocalDateTime created;
+    public double timeToLive;
+    private final double rotation;
+    private final LocalDateTime created;
     public Fragment(double x, double y){
         // create new polygon fragment
         super(new Polygon(2, -3, 2, 3, -3, 2, -3, -2), x, y, "fragment", ScreenUse.SINGULAR);
@@ -21,8 +21,8 @@ public class Fragment extends GameObject{
         }
     }
     public boolean removeIn(){
-        Duration remove_in = Duration.between(created, LocalDateTime.now());
-        return remove_in.toSeconds() < time_to_live;
+        Duration removeIn = Duration.between(created, LocalDateTime.now());
+        return removeIn.toSeconds() < timeToLive;
     }
     public void move(){
         // extend super.move() to add rotation to fragment

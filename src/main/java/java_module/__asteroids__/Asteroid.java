@@ -4,12 +4,10 @@ package java_module.__asteroids__;
 import java.util.Random;
 
 public class Asteroid extends GameObject{
-    private AsteroidSizes size;
-    private double rotation;
+    private final double rotation;
     public Asteroid(double x, double y, AsteroidSizes size){
         //create new polygon by calling asteroidMaker
         super(new PolygonMaker().createAsteroid(), x, y, "asteroid", ScreenUse.INFINITE);
-        this.size = size;
 
         // set random rotation
         Random rnd = new Random();

@@ -38,29 +38,29 @@ public class GameObject implements Movement{
     }
     public void move(){
         // changes x and y coordinates of object
-        switch (time){
-            case SINGULAR:
+        switch (time) {
+            case SINGULAR -> {
                 // singular items get from one side to the other
                 this.character.setTranslateX(this.character.getTranslateX() + this.movement.getX());
                 this.character.setTranslateY(this.character.getTranslateY() + this.movement.getY());
-                break;
-            case INFINITE:
+            }
+            case INFINITE -> {
                 this.character.setTranslateX(this.character.getTranslateX() + this.movement.getX());
                 this.character.setTranslateY(this.character.getTranslateY() + this.movement.getY());
                 // infinite items loop through the edges of the screen
-                if(this.character.getTranslateX() < 0){
+                if (this.character.getTranslateX() < 0) {
                     this.character.setTranslateX(this.character.getTranslateX() + SceneController.WIDTH);
                 }
-                if (this.character.getTranslateX() > SceneController.WIDTH){
+                if (this.character.getTranslateX() > SceneController.WIDTH) {
                     this.character.setTranslateX(this.character.getTranslateX() % SceneController.WIDTH);
                 }
-                if(this.character.getTranslateY() < 0){
+                if (this.character.getTranslateY() < 0) {
                     this.character.setTranslateY(this.character.getTranslateY() + SceneController.HEIGHT);
                 }
-                if(this.character.getTranslateY() > SceneController.HEIGHT){
+                if (this.character.getTranslateY() > SceneController.HEIGHT) {
                     this.character.setTranslateY(this.character.getTranslateY() % SceneController.HEIGHT);
                 }
-                break;
+            }
         }
     }
     public void accelerate(){
