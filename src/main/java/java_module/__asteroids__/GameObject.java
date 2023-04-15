@@ -105,4 +105,7 @@ public class GameObject implements Movement{
         double y = this.character.getTranslateY();
         return new Point2D(x,y);
     }
+    public boolean beyondScreenBounds(){
+        return this.character.getTranslateX() < 0 || this.character.getTranslateX() > SceneController.WIDTH || this.character.getTranslateY() < 0 || this.character.getTranslateY() > SceneController.HEIGHT;
+    }
 }

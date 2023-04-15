@@ -14,13 +14,11 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SceneController extends SceneFiller{
-    // width and height of all panes used for game
     public static int WIDTH = 800;
     public static int HEIGHT = 600;
-    // lives tally
     public int LIVES;
-    // high-score variable used to update file
     public int highscore;
+    public AtomicInteger levelCount = new AtomicInteger();
     private final AtomicInteger points = new AtomicInteger(); // dynamically count points during the game loop
     public void home(Stage stage){
         //method to show home screen of game
@@ -73,7 +71,6 @@ public class SceneController extends SceneFiller{
     }
     public void startGame(Stage stage){
         // method to start game loop
-
         List<Bullet> bulletList = new ArrayList<>();
         List<Asteroid> asteroidList = new ArrayList<>();
         List<Node> staticElementsList = new ArrayList<>();
@@ -81,7 +78,7 @@ public class SceneController extends SceneFiller{
         // create and add all static elements
         Pane pane = createBackground();
         Button exit = createButton("< exit", 15, 550);
-        Label level = createLabel("leval 1", 20, 400, "level");
+        Label level = createLabel("level "+levelCount.addAndGet(1), 20, 400, "level");
         Label score = createLabel("score: 0", 20, 510, "score");
         Label lives = createLabel("lives: ♥︎ ♥︎ ♥︎", WIDTH/3.0, 550, "lives");
 
@@ -94,7 +91,7 @@ public class SceneController extends SceneFiller{
         Ship player = new Ship(WIDTH/2, HEIGHT/2);
         LIVES = 3;
 
-        for (int i=0; i<20; i++){
+        for (int i=0; i<5; i++){
             AsteroidSizes size = AsteroidSizes.values()[new Random().nextInt(AsteroidSizes.values().length)];
             Asteroid a = new Asteroid(200, 100, size);
             asteroidList.add(a);
@@ -162,26 +159,44 @@ public class SceneController extends SceneFiller{
                     player.hyperspaceJump();
                 }
 
-                // call all objects to move - bullet has its own method to disappear at edge of screen unlike other objects
+                // call all objects to move
                 player.move();
                 asteroidList.forEach(Asteroid::move);
                 bulletList.forEach(Bullet::move);
 
-                // check if any bullets hit asteroids - increase score if true
-                bulletList.forEach(bullet -> asteroidList.forEach(asteroid -> {
-                    if (bullet.checkHit(asteroid.getCharacter())){
-                        bullet.setLife(false);
-                        asteroid.setLife(false);
-//                            trial fragment for collision animation ------------- wip --------------
-                        var s1 = new Fragment(bullet.getCharacter().getTranslateX(), bullet.getCharacter().getTranslateY());
-                        var s2 = new Fragment(asteroid.getCharacter().getTranslateX(), asteroid.getCharacter().getTranslateY());
-                        pane.getChildren().add(s1.getCharacter());
-                        pane.getChildren().add(s2.getCharacter());
-                        s1.move();
-                        s2.move();
-                        score.setText("Score: "+ points.addAndGet(10));
-                    }
-                }));
+                // check if any bullets hit asteroids
+                ArrayList<Bullet> bulletListCopy = new ArrayList<>(bulletList);
+                bulletListCopy.forEach(bullet -> {
+                    List<Asteroid> collisions = asteroidList.stream()
+                            .filter(asteroid -> asteroid.checkHit(bullet.getCharacter()))
+                            .toList();
+                    collisions.forEach(hitAsteroid -> {
+                        // check which size asteroid was hit and create new or remove accordingly
+                        AsteroidSizes size = hitAsteroid.getSize();
+                        switch (size){
+                            case LARGE:
+                                Asteroid a1 = new Asteroid(hitAsteroid.getCharacter().getTranslateX(), (int) hitAsteroid.getCharacter().getTranslateY(), AsteroidSizes.MEDIUM);
+                                Asteroid a2 = new Asteroid(hitAsteroid.getCharacter().getTranslateX(), (int) hitAsteroid.getCharacter().getTranslateY(), AsteroidSizes.MEDIUM);
+                                Collections.addAll(asteroidList, a1, a2);
+                                pane.getChildren().addAll(a1.getCharacter(), a2.getCharacter());
+                                score.setText("Score: "+ points.addAndGet(20));
+                                bullet.setLife(false);
+                                hitAsteroid.setLife(false);
+                            case MEDIUM:
+                                Asteroid a3 = new Asteroid(hitAsteroid.getCharacter().getTranslateX(), (int) hitAsteroid.getCharacter().getTranslateY(), AsteroidSizes.SMALL);
+                                Asteroid a4 = new Asteroid(hitAsteroid.getCharacter().getTranslateX(), (int) hitAsteroid.getCharacter().getTranslateY(), AsteroidSizes.SMALL);
+                                Collections.addAll(asteroidList, a3, a4);
+                                pane.getChildren().addAll(a3.getCharacter(), a4.getCharacter());
+                                score.setText("Score: "+ points.addAndGet(10));
+                                bullet.setLife(false);
+                                hitAsteroid.setLife(false);
+                            case SMALL:
+                                score.setText("Score: "+ points.addAndGet(5));
+                                bullet.setLife(false);
+                                hitAsteroid.setLife(false);
+                        }
+                    });
+                });
                 // remove bullets and asteroids from game if they collide
                 bulletList.stream()
                         .filter(bullet -> !bullet.isAlive())
@@ -196,6 +211,7 @@ public class SceneController extends SceneFiller{
                 asteroidList.removeAll(asteroidList.stream()
                         .filter(asteroid -> !asteroid.isAlive())
                         .toList());
+
                 // check if player hit asteroid - activate respawn and decrease lives
                 asteroidList.forEach(asteroid ->{
                     if(asteroid.checkHit(player.getCharacter()) && !Ship.respawnCalled){
@@ -203,6 +219,9 @@ public class SceneController extends SceneFiller{
                         player.respawn(WIDTH/2,HEIGHT/2);
                     }
                 });
+                if (asteroidList.size()==0){
+                    level.setText("level: "+levelCount.addAndGet(1));
+                }
                 if (player.isAlive() && LIVES==2){
                     lives.setText("lives: ♥︎ ♥︎ -");
                 } else if (player.isAlive() && LIVES==1){
@@ -228,7 +247,7 @@ public class SceneController extends SceneFiller{
         Label title = createLabel("Game Info", WIDTH/3.5, HEIGHT/5.0,"header");
         Label info = createLabel("move:\t\tA & D\nthrust:\t\tW\nshoot:\t\tE\nhyperjump:\tJ", WIDTH/3.0, HEIGHT/2.3, "info");
         Button back = createButton("< back", 15, 550);
-        Button reset = createButton("reset highscore", 40, 500);
+        Button reset = createButton("reset highscore", 15, 500);
 
         // set button functionality
         back.setOnAction(actionEvent -> home(stage));
@@ -240,6 +259,7 @@ public class SceneController extends SceneFiller{
             } catch (IOException e){
                 e.printStackTrace();
             }
+            home(stage);
         });
 
         // keep all static objects in list and add to pane

@@ -35,4 +35,11 @@ public class Alien extends GameObject{
         int y = rnd.nextInt(SceneController.HEIGHT);
         return new Alien(x,y);
     }
+    public void move(){
+        // extend super.move to remove ship when beyond screen bounds
+        if (this.beyondScreenBounds()){
+            this.setLife(false);
+        }
+        super.move();
+    }
 }

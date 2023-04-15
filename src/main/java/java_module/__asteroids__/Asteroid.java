@@ -5,9 +5,11 @@ import java.util.Random;
 
 public class Asteroid extends GameObject{
     private final double rotation;
+    private final AsteroidSizes size;
     public Asteroid(double x, double y, AsteroidSizes size){
         //create new polygon by calling asteroidMaker
         super(new PolygonMaker().createAsteroid(), x, y, "asteroid", ScreenUse.INFINITE);
+        this.size = size;
 
         // set random rotation
         Random rnd = new Random();
@@ -35,5 +37,8 @@ public class Asteroid extends GameObject{
     public void setScale(double x){
         super.getCharacter().setScaleX(x);
         super.getCharacter().setScaleY(x);
+    }
+    public AsteroidSizes getSize(){
+        return this.size;
     }
 }
