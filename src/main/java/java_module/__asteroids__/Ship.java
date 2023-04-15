@@ -32,8 +32,8 @@ public class Ship extends GameObject{
     public void move(){
         // extends super.move() to include respawn
         if (isSafe()){
-            respawnCalled = true;
-            this.getCharacter().setStroke(Color.LIGHTGREEN);
+                respawnCalled = true;
+                this.getCharacter().setStroke(Color.GOLD);
         }
         else {
             respawnCalled = false;

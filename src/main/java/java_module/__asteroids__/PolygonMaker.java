@@ -5,11 +5,17 @@ import javafx.scene.shape.Polygon;
 import java.util.Random;
 
 public class PolygonMaker {
-    public Polygon createAsteroid(){
+    private double scale;
+    public Polygon createAsteroid(AsteroidSizes size){
         // create a new polygon of angular shape
         Random rnd = new Random();
 
-        double size = 10 + rnd.nextInt(20);
+        // set size depending on desired asteroid
+        switch (size){
+            case SMALL -> scale = 10;
+            case MEDIUM -> scale = 25;
+            case LARGE -> scale = 40;
+        }
 
         Polygon polygon = new Polygon();
         double c1 = Math.cos(Math.PI * 2 / 5);
@@ -19,11 +25,11 @@ public class PolygonMaker {
 
         // set corner points of polygon
         polygon.getPoints().addAll(
-                size, 0.0,
-                size * c1, -1 * size * s1,
-                -1 * size * c2, -1 * size * s2,
-                -1 * size * c2, size * s2,
-                size * c1, size * s1);
+                scale, 0.0,
+                scale * c1, -1 * scale * s1,
+                -1 * scale * c2, -1 * scale * s2,
+                -1 * scale * c2, scale * s2,
+                scale * c1, scale * s1);
 
         polygon.getPoints().replaceAll(aDouble -> aDouble + rnd.nextInt(5) - 2);
 
