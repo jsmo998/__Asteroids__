@@ -9,7 +9,7 @@ import java.util.Random;
 
 public class Ship extends GameObject{
     private final static int RESPAWN_WINDOW = 3; // respawn window in seconds
-    public boolean respawnCalled; // respawn call flag
+    public static boolean respawnCalled; // respawn call flag
     private LocalDateTime spawned; // creation time to measure respawn window
     public Ship(int x, int y){
         // constructor creates new polygon, sets spawn time and calls isSafe
@@ -19,7 +19,6 @@ public class Ship extends GameObject{
     }
     public void respawn(int x, int y){
         // move character to starting position, set spawn and call isSafe
-        respawnCalled = true;
         this.spawned = LocalDateTime.now();
         this.setLocation(x, y);
         this.setMovement(getStartHere());
@@ -33,10 +32,15 @@ public class Ship extends GameObject{
     public void move(){
         // extends super.move() to include respawn
         if (isSafe()){
+            respawnCalled = true;
+            System.out.println("respawnCalled = true");
             this.getCharacter().setStroke(Color.LIGHTGREEN);
         }
-        else this.getCharacter().setStroke(Color.WHITE);
-        this.respawnCalled = false;
+        else {
+            respawnCalled = false;
+            System.out.println("respawnCalled = false");
+            this.getCharacter().setStroke(Color.WHITE);
+        }
         super.move();
 
     }

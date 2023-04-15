@@ -126,7 +126,6 @@ public class SceneController extends SceneFiller{
         AnimationTimer gameLoop = new AnimationTimer(){
             public void handle(long now){
                 if (pressedOnce.getOrDefault(KeyCode.K, false)){
-                    System.out.println("K pressed");
                     Alien enemy = Alien.spawnRandom();
                     enemy.update(player);
                     pane.getChildren().add(enemy.shootBullet().getCharacter());
@@ -135,20 +134,16 @@ public class SceneController extends SceneFiller{
                     pressedOnce.clear();
                 }
                 if (pressedKeys.getOrDefault(KeyCode.A, false)) {
-                    System.out.println("A pressed");
                     player.turnLeft();
                 }
                 if (pressedKeys.getOrDefault(KeyCode.D, false)) {
-                    System.out.println("D pressed");
                     player.turnRight();
                 }
                 if (pressedKeys.getOrDefault(KeyCode.W, false)) {
-                    System.out.println("W pressed");
                     player.accelerate();
                 }
                 // use separate hash map to read bullet call - clear on input to shoot only one bullet on key press rather than a whole stream
                 if (pressedOnce.getOrDefault(KeyCode.E, false)) {
-                    System.out.println("E pressed");
                     Bullet bullet = new Bullet((int) player.getCharacter().getTranslateX(), (int) player.getCharacter().getTranslateY());
                     bullet.getCharacter().setRotate(player.getCharacter().getRotate());
                     bulletList.add(bullet);
@@ -163,7 +158,6 @@ public class SceneController extends SceneFiller{
                     pressedOnce.clear();
                 }
                 if (pressedKeys.getOrDefault(KeyCode.J, false)){
-                    System.out.println("J pressed");
                     // flies all around the screen due to animationTimer ------------ wip ------------
                     player.hyperspaceJump();
                 }
@@ -178,7 +172,7 @@ public class SceneController extends SceneFiller{
                     if (bullet.checkHit(asteroid.getCharacter())){
                         bullet.setLife(false);
                         asteroid.setLife(false);
-//                            trial shrapnel for collision animation ------------- wip --------------
+//                            trial fragment for collision animation ------------- wip --------------
                         var s1 = new Fragment(bullet.getCharacter().getTranslateX(), bullet.getCharacter().getTranslateY());
                         var s2 = new Fragment(asteroid.getCharacter().getTranslateX(), asteroid.getCharacter().getTranslateY());
                         pane.getChildren().add(s1.getCharacter());
@@ -204,7 +198,7 @@ public class SceneController extends SceneFiller{
                         .toList());
                 // check if player hit asteroid - activate respawn and decrease lives
                 asteroidList.forEach(asteroid ->{
-                    if(asteroid.checkHit(player.getCharacter()) && !player.respawnCalled){
+                    if(asteroid.checkHit(player.getCharacter()) && !Ship.respawnCalled){
                         LIVES -=1;
                         player.respawn(WIDTH/2,HEIGHT/2);
                     }
