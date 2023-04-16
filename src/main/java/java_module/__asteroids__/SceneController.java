@@ -211,7 +211,7 @@ public class SceneController extends SceneFiller{
         // create all static objects
         pane = createBackground();
         Label title = createLabel("Game Info", WIDTH/3.5, HEIGHT/5.0,"header");
-        Label info = createLabel("move:\t\tA & D\nthrust:\t\tW\nshoot:\t\tE\nhyperjump:\tJ", WIDTH/3.0, HEIGHT/2.3, "info");
+        Label info = createLabel("turn left:\tA\nturn right:\tD\nforward:\tW\nshoot:\t\tE\nhyperjump:\tJ", WIDTH/3.5, HEIGHT/2.3, "info");
         Button back = createButton("< back", 15, 550);
         Button reset = createButton("reset highscore", 15, 500);
 
