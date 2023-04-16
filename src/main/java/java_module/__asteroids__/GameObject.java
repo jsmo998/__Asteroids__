@@ -106,6 +106,7 @@ public class GameObject implements Movement{
         return new Point2D(x,y);
     }
     public boolean beyondScreenBounds(){
+        // check if items which don't loop the screen edges have gone beyond them
         return this.character.getTranslateX() < 0 || this.character.getTranslateX() > SceneController.WIDTH || this.character.getTranslateY() < 0 || this.character.getTranslateY() > SceneController.HEIGHT;
     }
 }

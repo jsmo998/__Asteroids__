@@ -1,7 +1,7 @@
 package java_module.__asteroids__;
 
 public interface Movement {
-    // this interface defines the ways a GameObject must be able to be manipulated
+    // this interface defines the basic ways a GameObject must be able to be manipulated
     void turnLeft();
     void turnRight();
     void move();

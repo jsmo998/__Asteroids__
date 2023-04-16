@@ -4,9 +4,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class LevelManager {
-    private AtomicInteger level;
-    private SceneController sc;
-    private List<Asteroid> asteroidList;
+    private final AtomicInteger level;
+    private final SceneController sc;
+    private final List<Asteroid> asteroidList;
     public LevelManager(SceneController sc){
         this.sc=sc;
         this.level = new AtomicInteger(1);
@@ -14,10 +14,14 @@ public class LevelManager {
         this.addAsteroids();
     }
     private void addAsteroids(){
+        // TODO: make sure not spawned on top of player
+        Random rnd = new Random();
+        double x = rnd.nextDouble(800);
+        double y = rnd.nextDouble(600);
 
         for (int i=0; i<this.level.get(); i++){
             AsteroidSizes size = AsteroidSizes.LARGE;
-            Asteroid a = new Asteroid(200, 100, size);
+            Asteroid a = new Asteroid(x, y, size);
             this.asteroidList.add(a);
             this.sc.addAsteroid(a);
         }
@@ -29,29 +33,24 @@ public class LevelManager {
     public void asteroidHit(Asteroid a){
         a.setLife(false);
         AsteroidSizes size = a.getSize();
-        switch (size){
-            case LARGE:
+        switch (size) {
+            case LARGE -> {
                 Asteroid a1 = new Asteroid(a.getCharacter().getTranslateX(), (int) a.getCharacter().getTranslateY(), AsteroidSizes.MEDIUM);
                 Asteroid a2 = new Asteroid(a.getCharacter().getTranslateX(), (int) a.getCharacter().getTranslateY(), AsteroidSizes.MEDIUM);
                 Collections.addAll(this.asteroidList, a1, a2);
                 this.sc.addAsteroid(a1);
                 this.sc.addAsteroid(a2);
                 this.sc.addPoints(20);
-                break;
-
-            case MEDIUM:
+            }
+            case MEDIUM -> {
                 Asteroid a3 = new Asteroid(a.getCharacter().getTranslateX(), (int) a.getCharacter().getTranslateY(), AsteroidSizes.SMALL);
                 Asteroid a4 = new Asteroid(a.getCharacter().getTranslateX(), (int) a.getCharacter().getTranslateY(), AsteroidSizes.SMALL);
                 Collections.addAll(this.asteroidList, a3, a4);
                 this.sc.addAsteroid(a3);
                 this.sc.addAsteroid(a4);
                 this.sc.addPoints(10);
-                break;
-
-            case SMALL:
-                this.sc.addPoints(5);
-                break;
-            
+            }
+            case SMALL -> this.sc.addPoints(5);
         }
         this.sc.removeAsteroid(a);
         this.asteroidList.remove(a);

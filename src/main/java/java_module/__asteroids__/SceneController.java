@@ -70,9 +70,7 @@ public class SceneController extends SceneFiller{
         stage.show();
     }
     public void startGame(Stage stage){
-
         // method to start game loop
-
         List<Bullet> bulletList = new ArrayList<>();
         List<Node> staticElementsList = new ArrayList<>();
 
@@ -80,9 +78,9 @@ public class SceneController extends SceneFiller{
         pane = createBackground();
         LevelManager levelManager = new LevelManager(this);
         Button exit = createButton("< exit", 15, 550);
-        Label level = createLabel("level "+levelManager.getLevel().get(), 20, 400, "level");
+        Label level = createLabel("level "+levelManager.getLevel().get(), WIDTH/2.5, 15, "level");
         Label score = createLabel("score: 0", 20, 510, "score");
-        Label lives = createLabel("lives: ♥︎ ♥︎ ♥︎", WIDTH/3.0, 550, "lives");
+        Label lives = createLabel("lives: ♥︎ ♥︎ ♥︎", WIDTH/2.5, 550, "lives");
 
         // set button functionality
         exit.setOnAction(actionEvent -> home(stage));
@@ -92,8 +90,6 @@ public class SceneController extends SceneFiller{
         // create player at center
         Ship player = new Ship(WIDTH/2, HEIGHT/2);
         LIVES = 3;
-
-
 
         // add all objects to pane
         pane.getChildren().add(player.getCharacter());
@@ -163,9 +159,7 @@ public class SceneController extends SceneFiller{
 
                 // check if any bullets hit asteroids
                 ArrayList<Bullet> bulletListCopy = new ArrayList<>(bulletList);
-                bulletListCopy.forEach(bullet -> {
-                    levelManager.bulletHitAsteroid(bullet);
-                });
+                bulletListCopy.forEach(levelManager::bulletHitAsteroid);
                 // remove bullets and asteroids from game if they collide
                 bulletList.stream()
                         .filter(bullet -> !bullet.isAlive())
@@ -175,14 +169,16 @@ public class SceneController extends SceneFiller{
                         .toList());
 
                 // check if player hit asteroid - activate respawn and decrease lives
-                score.setText("score: "+ points.toString());
+
+                score.setText("score: "+ points);
                 if(levelManager.playerHitAsteroid(player) && !Ship.respawnCalled){
                     LIVES -=1;
                     player.respawn(WIDTH/2,HEIGHT/2);
                 }
-                if (levelManager.levelup()){                
+                if(levelManager.levelup()){
                     level.setText("level: "+levelManager.getLevel().toString());
                 }
+
                 if (player.isAlive() && LIVES==2){
                     lives.setText("lives: ♥︎ ♥︎ -");
                 } else if (player.isAlive() && LIVES==1){
@@ -209,7 +205,6 @@ public class SceneController extends SceneFiller{
     public void addPoints(int numpoints){
         this.points.addAndGet(numpoints);
     }
-
 
     // method to show information screen for game:
     public void info(Stage stage){
@@ -259,7 +254,7 @@ public class SceneController extends SceneFiller{
             throw new RuntimeException(e);
         }
         // create all static objects
-        pane = createBackground();
+        Pane pane = createBackground();
         Label title = createLabel("Game Over", WIDTH/3.5, HEIGHT/5.0,"overHeader");
         Label scoreboard = createLabel("score: "+points.get(), WIDTH/3.0, HEIGHT/2.3, "scoreboard");
         Button home = createButton("< home", 15, 550);

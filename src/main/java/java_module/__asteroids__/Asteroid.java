@@ -16,12 +16,12 @@ public class Asteroid extends GameObject{
         super.getCharacter().setRotate(rnd.nextInt(360));
         this.rotation = 0.5 - rnd.nextDouble();
 
-        // set speed
-        int acc = 1 + rnd.nextInt(10);
-        for (int i=0; i<acc; i++){
-            accelerate();
+        // set speed depending on size
+        switch (size){
+            case SMALL -> {for(int i=0; i<12; i++){accelerate();}}
+            case MEDIUM -> {for(int i=0; i<8; i++){accelerate();}}
+            case LARGE -> {for(int i=0; i<3; i++){accelerate();}}
         }
-
     }
     public void move(){
         // extends super.move() to set character to constantly rotate

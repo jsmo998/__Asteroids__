@@ -11,6 +11,7 @@ public class Ship extends GameObject{
     private final static int RESPAWN_WINDOW = 3; // respawn window in seconds
     public static boolean respawnCalled; // respawn call flag
     private LocalDateTime spawned; // creation time to measure respawn window
+
     public Ship(int x, int y){
         // constructor creates new polygon, sets spawn time and calls isSafe
         super(new Polygon(-10,-10,20,0,-10,10), x, y, "ship", ScreenUse.INFINITE);
@@ -26,8 +27,8 @@ public class Ship extends GameObject{
     }
     public boolean isSafe(){
         // sets character safe for 3 seconds when called
-        Duration respawn_time = Duration.between(spawned, LocalDateTime.now());
-        return respawn_time.toSeconds() < RESPAWN_WINDOW;
+        Duration respawnTime = Duration.between(spawned, LocalDateTime.now());
+        return respawnTime.toSeconds() < RESPAWN_WINDOW;
     }
     public void move(){
         // extends super.move() to include respawn
