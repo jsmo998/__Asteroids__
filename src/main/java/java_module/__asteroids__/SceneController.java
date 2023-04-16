@@ -14,11 +14,11 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SceneController extends SceneFiller{
+    private Pane pane;
     public static int WIDTH = 800;
     public static int HEIGHT = 600;
     public int LIVES;
     public int highscore;
-    public AtomicInteger levelCount = new AtomicInteger();
     private final AtomicInteger points = new AtomicInteger(); // dynamically count points during the game loop
     public void home(Stage stage){
         //method to show home screen of game
@@ -48,7 +48,7 @@ public class SceneController extends SceneFiller{
         }
 
         // create and add all static objects for the screen
-        Pane pane = createBackground();
+        pane = createBackground();
         Label title = createLabel("Asteroids", WIDTH/3.5, HEIGHT/5.0, "header");
         Button start = createButton("start", WIDTH/3.0, HEIGHT/2.2);
         Button info = createButton("info", WIDTH/3.0, HEIGHT/1.7);
@@ -70,15 +70,17 @@ public class SceneController extends SceneFiller{
         stage.show();
     }
     public void startGame(Stage stage){
+
         // method to start game loop
+
         List<Bullet> bulletList = new ArrayList<>();
-        List<Asteroid> asteroidList = new ArrayList<>();
         List<Node> staticElementsList = new ArrayList<>();
 
         // create and add all static elements
-        Pane pane = createBackground();
+        pane = createBackground();
+        LevelManager levelManager = new LevelManager(this);
         Button exit = createButton("< exit", 15, 550);
-        Label level = createLabel("level "+levelCount.addAndGet(1), 20, 400, "level");
+        Label level = createLabel("level "+levelManager.getLevel().get(), 20, 400, "level");
         Label score = createLabel("score: 0", 20, 510, "score");
         Label lives = createLabel("lives: ♥︎ ♥︎ ♥︎", WIDTH/3.0, 550, "lives");
 
@@ -91,15 +93,10 @@ public class SceneController extends SceneFiller{
         Ship player = new Ship(WIDTH/2, HEIGHT/2);
         LIVES = 3;
 
-        for (int i=0; i<5; i++){
-            AsteroidSizes size = AsteroidSizes.values()[new Random().nextInt(AsteroidSizes.values().length)];
-            Asteroid a = new Asteroid(200, 100, size);
-            asteroidList.add(a);
-        }
+
 
         // add all objects to pane
         pane.getChildren().add(player.getCharacter());
-        asteroidList.forEach(asteroid -> pane.getChildren().add(asteroid.getCharacter()));
         staticElementsList.forEach(node -> pane.getChildren().add(node));
 
         Scene scene = new Scene(pane);
@@ -161,41 +158,13 @@ public class SceneController extends SceneFiller{
 
                 // call all objects to move
                 player.move();
-                asteroidList.forEach(Asteroid::move);
+                levelManager.moveAsteroids();
                 bulletList.forEach(Bullet::move);
 
                 // check if any bullets hit asteroids
                 ArrayList<Bullet> bulletListCopy = new ArrayList<>(bulletList);
                 bulletListCopy.forEach(bullet -> {
-                    List<Asteroid> collisions = asteroidList.stream()
-                            .filter(asteroid -> asteroid.checkHit(bullet.getCharacter()))
-                            .toList();
-                    collisions.forEach(hitAsteroid -> {
-                        // check which size asteroid was hit and create new or remove accordingly
-                        AsteroidSizes size = hitAsteroid.getSize();
-                        switch (size){
-                            case LARGE:
-                                Asteroid a1 = new Asteroid(hitAsteroid.getCharacter().getTranslateX(), (int) hitAsteroid.getCharacter().getTranslateY(), AsteroidSizes.MEDIUM);
-                                Asteroid a2 = new Asteroid(hitAsteroid.getCharacter().getTranslateX(), (int) hitAsteroid.getCharacter().getTranslateY(), AsteroidSizes.MEDIUM);
-                                Collections.addAll(asteroidList, a1, a2);
-                                pane.getChildren().addAll(a1.getCharacter(), a2.getCharacter());
-                                score.setText("Score: "+ points.addAndGet(20));
-                                bullet.setLife(false);
-                                hitAsteroid.setLife(false);
-                            case MEDIUM:
-                                Asteroid a3 = new Asteroid(hitAsteroid.getCharacter().getTranslateX(), (int) hitAsteroid.getCharacter().getTranslateY(), AsteroidSizes.SMALL);
-                                Asteroid a4 = new Asteroid(hitAsteroid.getCharacter().getTranslateX(), (int) hitAsteroid.getCharacter().getTranslateY(), AsteroidSizes.SMALL);
-                                Collections.addAll(asteroidList, a3, a4);
-                                pane.getChildren().addAll(a3.getCharacter(), a4.getCharacter());
-                                score.setText("Score: "+ points.addAndGet(10));
-                                bullet.setLife(false);
-                                hitAsteroid.setLife(false);
-                            case SMALL:
-                                score.setText("Score: "+ points.addAndGet(5));
-                                bullet.setLife(false);
-                                hitAsteroid.setLife(false);
-                        }
-                    });
+                    levelManager.bulletHitAsteroid(bullet);
                 });
                 // remove bullets and asteroids from game if they collide
                 bulletList.stream()
@@ -205,22 +174,14 @@ public class SceneController extends SceneFiller{
                         .filter(bullet -> !bullet.isAlive())
                         .toList());
 
-                asteroidList.stream()
-                        .filter(asteroid -> !asteroid.isAlive())
-                        .forEach(asteroid -> pane.getChildren().remove(asteroid.getCharacter()));
-                asteroidList.removeAll(asteroidList.stream()
-                        .filter(asteroid -> !asteroid.isAlive())
-                        .toList());
-
                 // check if player hit asteroid - activate respawn and decrease lives
-                asteroidList.forEach(asteroid ->{
-                    if(asteroid.checkHit(player.getCharacter()) && !Ship.respawnCalled){
-                        LIVES -=1;
-                        player.respawn(WIDTH/2,HEIGHT/2);
-                    }
-                });
-                if (asteroidList.size()==0){
-                    level.setText("level: "+levelCount.addAndGet(1));
+                score.setText("score: "+ points.toString());
+                if(levelManager.playerHitAsteroid(player) && !Ship.respawnCalled){
+                    LIVES -=1;
+                    player.respawn(WIDTH/2,HEIGHT/2);
+                }
+                if (levelManager.levelup()){                
+                    level.setText("level: "+levelManager.getLevel().toString());
                 }
                 if (player.isAlive() && LIVES==2){
                     lives.setText("lives: ♥︎ ♥︎ -");
@@ -239,11 +200,21 @@ public class SceneController extends SceneFiller{
         };
         gameLoop.start();
     }
+    public void addAsteroid(Asteroid a){
+        pane.getChildren().add(a.getCharacter());
+    }
+    public void removeAsteroid(Asteroid a){
+        pane.getChildren().remove(a.getCharacter());
+    }
+    public void addPoints(int numpoints){
+        this.points.addAndGet(numpoints);
+    }
+
 
     // method to show information screen for game:
     public void info(Stage stage){
         // create all static objects
-        Pane pane = createBackground();
+        pane = createBackground();
         Label title = createLabel("Game Info", WIDTH/3.5, HEIGHT/5.0,"header");
         Label info = createLabel("move:\t\tA & D\nthrust:\t\tW\nshoot:\t\tE\nhyperjump:\tJ", WIDTH/3.0, HEIGHT/2.3, "info");
         Button back = createButton("< back", 15, 550);
@@ -288,7 +259,7 @@ public class SceneController extends SceneFiller{
             throw new RuntimeException(e);
         }
         // create all static objects
-        Pane pane = createBackground();
+        pane = createBackground();
         Label title = createLabel("Game Over", WIDTH/3.5, HEIGHT/5.0,"overHeader");
         Label scoreboard = createLabel("score: "+points.get(), WIDTH/3.0, HEIGHT/2.3, "scoreboard");
         Button home = createButton("< home", 15, 550);
