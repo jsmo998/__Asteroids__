@@ -1,6 +1,8 @@
 package java_module.__asteroids__;
 
 import javafx.animation.AnimationTimer;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -8,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.*;
 import java.util.*;
@@ -73,6 +76,10 @@ public class SceneController extends SceneFiller{
         // method to start game loop
         List<Bullet> bulletList = new ArrayList<>();
         List<Node> staticElementsList = new ArrayList<>();
+        Alien alien= Alien.spawnRandom();
+
+        List<Bullet> alienBullets=new ArrayList<>();
+
 
         // create and add all static elements
         pane = createBackground();
@@ -90,10 +97,31 @@ public class SceneController extends SceneFiller{
         // create player at center
         Ship player = new Ship(WIDTH/2, HEIGHT/2);
         LIVES = 3;
+        alien.update(player);
 
         // add all objects to pane
         pane.getChildren().add(player.getCharacter());
         staticElementsList.forEach(node -> pane.getChildren().add(node));
+        Timeline bulletTimeline = new Timeline(new KeyFrame(Duration.millis(500), event -> {
+            Bullet alienBullet = alien.shootBullet();
+//            alienBullet.update(player);
+            alienBullet.setDirection(player.getCharacter().getTranslateX(),player.getCharacter().getTranslateY());
+            alienBullet.getCharacter().setRotate(alien.getCharacter().getRotate());
+            alienBullets.add(alienBullet);
+            alienBullet.accelerate();
+            alienBullet.setMovement(alienBullet.getMovement().normalize().multiply(3));
+
+            // add player velocity to bullet so that bullet is always faster than ship
+            var v = player.getMovement().add(alienBullet.getMovement());
+            alienBullet.setMovement(v);
+
+            pane.getChildren().add(alienBullet.getCharacter());
+        }));
+// set Timeline cycle times
+        bulletTimeline.setCycleCount(10);
+// launch Timeline
+        bulletTimeline.play();
+        pane.getChildren().add(alien.getCharacter());
 
         Scene scene = new Scene(pane);
         stage.setTitle("Asteroids");
@@ -115,14 +143,14 @@ public class SceneController extends SceneFiller{
 
         AnimationTimer gameLoop = new AnimationTimer(){
             public void handle(long now){
-                if (pressedOnce.getOrDefault(KeyCode.K, false)){
-                    Alien enemy = Alien.spawnRandom();
-                    enemy.update(player);
-                    pane.getChildren().add(enemy.shootBullet().getCharacter());
-                    pane.getChildren().add(enemy.getCharacter());
-                    enemy.move();
-                    pressedOnce.clear();
-                }
+//                if (pressedOnce.getOrDefault(KeyCode.K, false)){
+//                    Alien enemy = Alien.spawnRandom();
+//                    enemy.update(player);
+//                    pane.getChildren().add(enemy.shootBullet().getCharacter());
+//                    pane.getChildren().add(enemy.getCharacter());
+//                    enemy.move();
+//                    pressedOnce.clear();
+//                }
                 if (pressedKeys.getOrDefault(KeyCode.A, false)) {
                     player.turnLeft();
                 }
@@ -156,6 +184,9 @@ public class SceneController extends SceneFiller{
                 player.move();
                 levelManager.moveAsteroids();
                 bulletList.forEach(Bullet::move);
+                alienBullets.forEach(Bullet::move);
+                alien.move();
+                alien.accelerate();
 
                 // check if any bullets hit asteroids
                 ArrayList<Bullet> bulletListCopy = new ArrayList<>(bulletList);
