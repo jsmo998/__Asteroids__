@@ -45,29 +45,15 @@ public class Alien extends GameObject{
     }
     public static Alien spawnRandom(){
         Random rnd = new Random();
-        int x =0;
-        int y=0;
-        int side = rnd.nextInt(1, 5);
-        if (side == 1){
-            System.out.println("left");
-            x = 0;
-            y = rnd.nextInt(600);
-        } else if(side == 2){
-            System.out.println("right");
-            x=800;
-            y = rnd.nextInt(600);
-        } else if(side==3){
-            System.out.println("top");
-            x = rnd.nextInt(800);
-            y = 0;
-        } else if(side == 4){
-            System.out.println("bottom");
-            x = rnd.nextInt(800);
-            y = 600;
+        int x = 0;
+        int y = 0;
+        AlienSpawn side = AlienSpawn.values()[rnd.nextInt(AlienSpawn.values().length)];
+        switch (side){
+            case TOP -> x = rnd.nextInt(800);
+            case BOTTOM -> {x = rnd.nextInt(800); y = 600;}
+            case LEFT -> y = rnd.nextInt(600);
+            case RIGHT -> {x=800; y = rnd.nextInt(600);}
         }
-
-        // randomly decide which side is 0 - top, bottom, left or right
-        // then choose int in range from other side top/botton = 800, left/right = 600
         // set movement to point to other side of screen
         return new Alien(x, y);
     }
