@@ -1,0 +1,40 @@
+.pane {
+    -fx-background-color: #0C092A;
+}
+
+.label {
+    -fx-font-family: Menlo;
+    -fx-font-size: 60;
+    -fx-text-fill: white;
+
+}
+.button {
+    -fx-font-family: Menlo;
+    -fx-font-size: 20;
+    -fx-text-fill: white;
+    -fx-background-color: #0C092A;
+    -fx-border-color: white;
+}
+#fame {
+    -fx-font-family: Menlo Regular;
+    -fx-font-size: 30;
+}
+#scoreboard {
+    -fx-font-family: Menlo Regular;
+    -fx-font-size: 30;
+}
+#info {
+    -fx-font-family: Menlo Regular;
+    -fx-font-size: 30;
+}
+#score {
+    -fx-font-family: Menlo Regular;
+    -fx-font-size: 20;
+}
+#lives {
+    -fx-font-family: Menlo Regular;
+    -fx-font-size: 20;
+}
+#level {
+    -fx-font-size: 30;
+}
