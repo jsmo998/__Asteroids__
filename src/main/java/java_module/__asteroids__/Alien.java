@@ -3,6 +3,9 @@ package java_module.__asteroids__;
 import javafx.geometry.Point2D;
 import javafx.scene.shape.Polygon;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Dictionary;
 import java.util.Random;
 
 public class Alien extends GameObject{
@@ -41,11 +44,32 @@ public class Alien extends GameObject{
         getCharacter().setRotate(Math.toDegrees(angle)  - 90);
     }
     public static Alien spawnRandom(){
-        // create new Alien at random location ------- implement in constructor instead -------
         Random rnd = new Random();
-        int x = rnd.nextInt(SceneController.WIDTH);
-        int y = rnd.nextInt(SceneController.HEIGHT);
-        return new Alien(x,y);
+        int x =0;
+        int y=0;
+        int side = rnd.nextInt(1, 5);
+        if (side == 1){
+            System.out.println("left");
+            x = 0;
+            y = rnd.nextInt(600);
+        } else if(side == 2){
+            System.out.println("right");
+            x=800;
+            y = rnd.nextInt(600);
+        } else if(side==3){
+            System.out.println("top");
+            x = rnd.nextInt(800);
+            y = 0;
+        } else if(side == 4){
+            System.out.println("bottom");
+            x = rnd.nextInt(800);
+            y = 600;
+        }
+
+        // randomly decide which side is 0 - top, bottom, left or right
+        // then choose int in range from other side top/botton = 800, left/right = 600
+        // set movement to point to other side of screen
+        return new Alien(x, y);
     }
     public void move(){
         // extend super.move to remove ship when beyond screen bounds
