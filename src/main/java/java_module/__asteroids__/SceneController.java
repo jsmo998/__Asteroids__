@@ -3,7 +3,6 @@ package java_module.__asteroids__;
 import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -23,6 +22,7 @@ public class SceneController extends SceneFiller{
     public static int HEIGHT = 600;
     public int LIVES;
     public int highscore;
+
     private final AtomicInteger points = new AtomicInteger(); // dynamically count points during the game loop
     public void home(Stage stage){
         //method to show home screen of game
@@ -100,31 +100,34 @@ public class SceneController extends SceneFiller{
         LIVES = 3;
         alien.update(player);
 
-
         // add all objects to pane
         pane.getChildren().add(player.getCharacter());
         staticElementsList.forEach(node -> pane.getChildren().add(node));
-        //set different rotate of each bullet and time gap between them, so they can show seperately on the screen
-        Timeline bulletTimeline = new Timeline(new KeyFrame(Duration.millis(500), event -> {
-            Bullet alienBullet = alien.shootBullet();
-            alienBullet.setDirection(player.getCharacter().getTranslateX(),player.getCharacter().getTranslateY());
+                Timeline bulletTimeline = new Timeline(new KeyFrame(Duration.millis(500), event -> {
+                    if (!alien.beyondScreenBounds()){
+                        Bullet alienBullet = alien.shootBulletTowardsPlayer(player);
+                        alienBullet.setDirection(player.getCharacter().getTranslateX(),player.getCharacter().getTranslateY());
+                        alienBullet.getCharacter().setRotate(alien.getCharacter().getRotate());
+                        alienBullets.add(alienBullet);
+                        alienBullet.accelerate();
+                        alienBullet.setMovement(alienBullet.getMovement().normalize().multiply(3));
 
-            alienBullet.getCharacter().setRotate(alien.getCharacter().getRotate());
+                        // add player velocity to bullet so that bullet is always faster than ship
+                        var v = player.getMovement().add(alienBullet.getMovement());
+                        alienBullet.setMovement(v);
 
-            alienBullets.add(alienBullet);
-            alienBullet.accelerate();
-            alienBullet.setMovement(alienBullet.getMovement().normalize().multiply(3));
+                        pane.getChildren().add(alienBullet.getCharacter());}
+                }));
 
-            // add player velocity to bullet so that bullet is always faster than ship
-
-
-            pane.getChildren().add(alienBullet.getCharacter());
-        }));
 // set Timeline cycle times
-        bulletTimeline.setCycleCount(10);
+                bulletTimeline.setCycleCount(10);
 // launch Timeline
-        bulletTimeline.play();
-        pane.getChildren().add(alien.getCharacter());
+                bulletTimeline.play();
+
+                pane.getChildren().add(alien.getCharacter());
+
+
+
 
         Scene scene = new Scene(pane);
         stage.setTitle("Asteroids");
@@ -143,7 +146,6 @@ public class SceneController extends SceneFiller{
             pressedOnce.put(KeyEvent.getCode(), Boolean.FALSE);
         });
 
-
         AnimationTimer gameLoop = new AnimationTimer(){
             public void handle(long now){
                 if (pressedKeys.getOrDefault(KeyCode.A, false)) {
@@ -154,8 +156,6 @@ public class SceneController extends SceneFiller{
                 }
                 if (pressedKeys.getOrDefault(KeyCode.W, false)) {
                     player.accelerate();
-                    System.out.println(player.getCharacter().getTranslateX());
-                    System.out.println(player.getCharacter().getTranslateY());
                 }
                 // use separate hash map to read bullet call - clear on input to shoot only one bullet on key press rather than a whole stream
                 if (pressedOnce.getOrDefault(KeyCode.E, false)) {
@@ -199,12 +199,20 @@ public class SceneController extends SceneFiller{
                 // check if player hit asteroid - activate respawn and decrease lives
 
                 score.setText("score: "+ points);
-                if(levelManager.playerHitAsteroid(player) && !Ship.respawnCalled){
+                alienBullets.forEach(bullet -> {
+                    if(bullet.checkHit(player.getCharacter())){
+                        LIVES -=1;
+                        player.respawn(WIDTH/2,HEIGHT/2);
+                    }
+
+                });
+                if(levelManager.playerHitAsteroid(player)&& !Ship.respawnCalled){
                     LIVES -=1;
                     player.respawn(WIDTH/2,HEIGHT/2);
                 }
                 if(levelManager.levelup()){
                     level.setText("level: "+levelManager.getLevel().toString());
+
                 }
 
                 if (player.isAlive() && LIVES==2){
@@ -224,6 +232,7 @@ public class SceneController extends SceneFiller{
         };
         gameLoop.start();
     }
+
     public void addAsteroid(Asteroid a){
         pane.getChildren().add(a.getCharacter());
     }
