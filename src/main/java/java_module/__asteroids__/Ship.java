@@ -50,4 +50,7 @@ public class Ship extends GameObject{
         var rndY = rnd.nextInt(SceneController.HEIGHT);
         this.respawn(rndX, rndY);
     }
+    public void checkJump(){
+
+    }
 }

@@ -3,6 +3,7 @@ package java_module.__asteroids__;
 import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -99,21 +100,23 @@ public class SceneController extends SceneFiller{
         LIVES = 3;
         alien.update(player);
 
+
         // add all objects to pane
         pane.getChildren().add(player.getCharacter());
         staticElementsList.forEach(node -> pane.getChildren().add(node));
+        //set different rotate of each bullet and time gap between them, so they can show seperately on the screen
         Timeline bulletTimeline = new Timeline(new KeyFrame(Duration.millis(500), event -> {
             Bullet alienBullet = alien.shootBullet();
-//            alienBullet.update(player);
             alienBullet.setDirection(player.getCharacter().getTranslateX(),player.getCharacter().getTranslateY());
+
             alienBullet.getCharacter().setRotate(alien.getCharacter().getRotate());
+
             alienBullets.add(alienBullet);
             alienBullet.accelerate();
             alienBullet.setMovement(alienBullet.getMovement().normalize().multiply(3));
 
             // add player velocity to bullet so that bullet is always faster than ship
-            var v = player.getMovement().add(alienBullet.getMovement());
-            alienBullet.setMovement(v);
+
 
             pane.getChildren().add(alienBullet.getCharacter());
         }));
@@ -143,14 +146,6 @@ public class SceneController extends SceneFiller{
 
         AnimationTimer gameLoop = new AnimationTimer(){
             public void handle(long now){
-//                if (pressedOnce.getOrDefault(KeyCode.K, false)){
-//                    Alien enemy = Alien.spawnRandom();
-//                    enemy.update(player);
-//                    pane.getChildren().add(enemy.shootBullet().getCharacter());
-//                    pane.getChildren().add(enemy.getCharacter());
-//                    enemy.move();
-//                    pressedOnce.clear();
-//                }
                 if (pressedKeys.getOrDefault(KeyCode.A, false)) {
                     player.turnLeft();
                 }
@@ -159,6 +154,8 @@ public class SceneController extends SceneFiller{
                 }
                 if (pressedKeys.getOrDefault(KeyCode.W, false)) {
                     player.accelerate();
+                    System.out.println(player.getCharacter().getTranslateX());
+                    System.out.println(player.getCharacter().getTranslateY());
                 }
                 // use separate hash map to read bullet call - clear on input to shoot only one bullet on key press rather than a whole stream
                 if (pressedOnce.getOrDefault(KeyCode.E, false)) {

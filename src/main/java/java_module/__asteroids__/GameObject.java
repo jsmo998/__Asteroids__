@@ -29,11 +29,11 @@ public class GameObject implements Movement{
     }
     public void turnLeft(){
         // changes orientation of object left
-        this.character.setRotate(this.character.getRotate() - 5);
+        this.character.setRotate(this.character.getRotate() - 3);
     }
     public void turnRight(){
         // changes orientation of object right
-        this.character.setRotate(this.character.getRotate() + 5);
+        this.character.setRotate(this.character.getRotate() + 3);
     }
     public void move(){
         // changes x and y coordinates of object
@@ -71,7 +71,11 @@ public class GameObject implements Movement{
         changeY *= 0.05;
 
         this.movement = this.movement.add(changeX,changeY);
+
+        this.getCharacter().setTranslateX(this.getCharacter().getTranslateX()+this.movement.getX());
+        this.getCharacter().setTranslateY(this.getCharacter().getTranslateY()+this.movement.getY());
     }
+
     public Point2D getMovement(){
         // returns velocity of object
         return movement;
@@ -111,7 +115,5 @@ public class GameObject implements Movement{
     }
 
 
-    protected void update() {
 
-    }
 }
