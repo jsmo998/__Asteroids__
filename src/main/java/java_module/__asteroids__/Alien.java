@@ -17,19 +17,10 @@ public class Alien extends GameObject{
         // create new polygon - same shape as ship
         super(new Polygon(-15, 0, 0, 10, 15, 0, 0, -10), x, y,"alien", ScreenUse.SINGULAR);
         target = new Point2D(0,0);
-        Random rnd = new Random();
-
-        super.getCharacter().setRotate(rnd.nextInt(360));
-
-        int accelerationAmount = 20 + rnd.nextInt(10,20);
-        for (int i = 0; i < accelerationAmount; i++) {
-            accelerate();
-        }
-        this.movement = new Point2D(changeX * 5, changeY * 5);
     }
     public void update(Ship player){
         // set target of alien to player movement
-        target = player.getLocation();
+        target = new Point2D(player.getCharacter().getTranslateX(),player.getCharacter().getTranslateY());
         updateAngle();
     }
     public Bullet shootBullet(){

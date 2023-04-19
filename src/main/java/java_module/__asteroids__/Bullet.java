@@ -43,7 +43,7 @@ public class Bullet extends GameObject{
             setVelocityY(directionY); // apply new direction on y
             directionSet = false; // set redirection to false
         }
-        super.update();
+//        super.update();
     }
 
 }
