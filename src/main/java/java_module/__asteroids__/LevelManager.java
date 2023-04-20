@@ -6,22 +6,28 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class LevelManager {
     private final AtomicInteger level;
     private final SceneController sc;
+    private final Ship player;
     private final List<Asteroid> asteroidList;
-    public LevelManager(SceneController sc){
+    public LevelManager(SceneController sc, Ship player){
         this.sc=sc;
+        this.player=player;
         this.level = new AtomicInteger(1);
         this.asteroidList = new ArrayList<>();
         this.addAsteroids();
     }
     private void addAsteroids(){
-        // TODO: make sure not spawned on top of player
         Random rnd = new Random();
-        double x = rnd.nextDouble(800);
-        double y = rnd.nextDouble(600);
-
         for (int i=0; i<this.level.get(); i++){
-            AsteroidSizes size = AsteroidSizes.LARGE;
-            Asteroid a = new Asteroid(x, y, size);
+            boolean hit = true;
+            Asteroid a;
+            do {
+                double x = rnd.nextDouble(800);
+                double y = rnd.nextDouble(600);
+                AsteroidSizes size = AsteroidSizes.LARGE;
+                a = new Asteroid(x, y, size);
+                hit=a.checkHit(this.player.getCharacter());
+            }
+            while (hit==true);
             this.asteroidList.add(a);
             this.sc.addAsteroid(a);
         }

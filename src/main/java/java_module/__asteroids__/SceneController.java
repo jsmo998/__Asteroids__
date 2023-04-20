@@ -75,6 +75,7 @@ public class SceneController extends SceneFiller{
     }
     public void startGame(Stage stage){
         // method to start game loop
+        points.set(0);
         List<Bullet> bulletList = new ArrayList<>();
         List<Node> staticElementsList = new ArrayList<>();
         Alien alien= Alien.spawnRandom();
@@ -84,9 +85,8 @@ public class SceneController extends SceneFiller{
 
         // create and add all static elements
         pane = createBackground();
-        LevelManager levelManager = new LevelManager(this);
         Button exit = createButton("< exit", 15, 550);
-        Label level = createLabel("level "+levelManager.getLevel().get(), WIDTH/2.5, 15, "level");
+        Label level = createLabel("level 1", WIDTH/2.5, 15, "level");
         Label score = createLabel("score: 0", 20, 510, "score");
         Label lives = createLabel("lives: ♥︎ ♥︎ ♥︎", WIDTH/2.5, 550, "lives");
 
@@ -99,6 +99,7 @@ public class SceneController extends SceneFiller{
         Ship player = new Ship(WIDTH/2, HEIGHT/2);
         LIVES = 3;
         alien.update(player);
+        LevelManager levelManager = new LevelManager(this, player);
 
 
         // add all objects to pane
