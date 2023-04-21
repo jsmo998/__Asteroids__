@@ -23,6 +23,7 @@ public class SceneController extends SceneFiller{
     public final AtomicInteger LIVES  = new AtomicInteger();
     public int JUMPS;
     public int highscore;
+    public String LEVEL;
     private final AtomicInteger points = new AtomicInteger(); // dynamically count points during the game loop
     public void home(Stage stage){
         //method to show home screen of game
@@ -218,7 +219,7 @@ public class SceneController extends SceneFiller{
 
                 score.setText("score: "+ points);
                 alienBullets.forEach(bullet -> {
-                    if(bullet.checkHit(player.getCharacter())){
+                    if(bullet.checkHit(player.getCharacter()) && !player.isSafe()){
                         LIVES .decrementAndGet();
                         player.respawn(WIDTH/2,HEIGHT/2);
                     }
@@ -238,6 +239,7 @@ public class SceneController extends SceneFiller{
                     lives.setText("lives: ♥ - -");
                 } else if(player.isAlive() && LIVES.get()==0){
                     lives.setText("lives: - - -");
+                    LEVEL = levelManager.getLevel().toString();
                     player.setLife(false);
                 }
                 if (!player.isAlive()) {
@@ -310,6 +312,7 @@ public class SceneController extends SceneFiller{
         Pane pane = createBackground();
         Label title = createLabel("Game Over", WIDTH/3.5, HEIGHT/5.0,"overHeader");
         Label scoreboard = createLabel("score: "+points.get(), WIDTH/3.0, HEIGHT/2.3, "scoreboard");
+        Label levelboard = createLabel("level: "+LEVEL, WIDTH/3.0, HEIGHT/1.9, "levelboard");
         Button home = createButton("< home", 15, 550);
 
         //set button functionality
@@ -317,7 +320,7 @@ public class SceneController extends SceneFiller{
 
         // keep all static objects in list and add to pane
         List<Node> staticElementsList = new ArrayList<>();
-        Collections.addAll(staticElementsList, title, scoreboard, home);
+        Collections.addAll(staticElementsList, title, scoreboard, home, levelboard);
         staticElementsList.forEach(node -> pane.getChildren().add(node));
 
         Scene scene = new Scene(pane);
