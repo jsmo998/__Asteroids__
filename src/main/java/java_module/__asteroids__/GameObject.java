@@ -7,7 +7,6 @@ import javafx.scene.shape.Polygon;
 public class GameObject implements Movable{
     private final Polygon character; // variable name for accessing polygon of character
     private Point2D movement; // direction and speed of object
-    private final Point2D startHere = new Point2D(0,0); // starting position
     private boolean isAlive; // flag to check life
     private final ScreenUse time;
     public GameObject(Polygon polygon, double x, double y, String s, ScreenUse time){
@@ -21,7 +20,8 @@ public class GameObject implements Movable{
         this.character.setId(s);
         this.time = time;
         this.isAlive = true;
-        this.movement = startHere;
+        // starting position
+        this.movement = new Point2D(0, 0);
     }
     public Polygon getCharacter(){
         // returns polygon of character object
@@ -71,10 +71,6 @@ public class GameObject implements Movable{
     public void setMovement(Point2D mv){
         // sets velocity of object
         movement = mv;
-    }
-    public Point2D getStartHere(){
-        // gets starting point for object
-        return startHere;
     }
     public boolean checkHit(Polygon other){
         // checks object collision with other

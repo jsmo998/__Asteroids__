@@ -8,11 +8,11 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Random;
 
-public class Ship extends GameObject implements Movable, Controllable{
+public class Ship extends GameObject implements Controllable{
     private final static int RESPAWN_WINDOW = 3; // respawn window in seconds
     public static boolean respawnCalled; // respawn call flag
     private LocalDateTime spawned; // creation time to measure respawn window
-
+    private final Point2D startHere = new Point2D(0,0); // starting position
     public Ship(int x, int y){
         // constructor creates new polygon, sets spawn time and calls isSafe
         super(new Polygon(-10,-10,20,0,-10,10), x, y, "ship", ScreenUse.INFINITE);
@@ -45,9 +45,7 @@ public class Ship extends GameObject implements Movable, Controllable{
         return new Point2D(x,y);
     }
     public Point2D getStartHere(){
-        double x = this.getCharacter().getTranslateX();
-        double y = this.getCharacter().getTranslateY();
-        return new Point2D(x,y);
+        return this.startHere;
     }
     public boolean isSafe(){
         // sets character safe for 3 seconds when called
@@ -73,8 +71,5 @@ public class Ship extends GameObject implements Movable, Controllable{
         var rndX = rnd.nextInt(SceneController.WIDTH);
         var rndY = rnd.nextInt(SceneController.HEIGHT);
         this.respawn(rndX, rndY);
-    }
-    public void checkJump(){
-
     }
 }

@@ -3,7 +3,7 @@ package java_module.__asteroids__;
 
 import java.util.Random;
 
-public class Asteroid extends GameObject implements Movable{
+public class Asteroid extends GameObject{
     private final double rotation;
     private final AsteroidSizes size;
     public Asteroid(double x, double y, AsteroidSizes size){
