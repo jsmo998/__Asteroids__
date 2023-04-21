@@ -3,7 +3,6 @@ package java_module.__asteroids__;
 import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -83,14 +82,13 @@ public class SceneController extends SceneFiller{
 
         List<Bullet> alienBullets=new ArrayList<>();
 
-
         // create and add all static elements
         pane = createBackground();
         Button exit = createButton("< exit", 15, 550);
         Label level = createLabel("level 1", WIDTH/2.5, 15, "level");
         Label score = createLabel("score: 0", 20, 510, "score");
         Label lives = createLabel("lives: ♥ ♥ ♥", WIDTH*0.3, 550, "lives");
-        Label jumps = createLabel("hyperpace jumps: ✷ ✷ ✷", WIDTH*0.6, 550, "lives");
+        Label jumps = createLabel("hyperspace jumps: ✷ ✷ ✷", WIDTH*0.6, 550, "lives");
         // set button functionality
         exit.setOnAction(actionEvent -> home(stage));
         // keep all static objects in list and add to pane
@@ -166,7 +164,6 @@ public class SceneController extends SceneFiller{
                     Bullet bullet = new Bullet((int) player.getCharacter().getTranslateX(), (int) player.getCharacter().getTranslateY());
                     bullet.getCharacter().setRotate(player.getCharacter().getRotate());
                     bulletList.add(bullet);
-
                     bullet.accelerate();
                     bullet.setMovement(bullet.getMovement().normalize().multiply(3));
 
@@ -182,20 +179,19 @@ public class SceneController extends SceneFiller{
                         player.hyperspaceJump();
                         JUMPS-=1;
                     }
-
                     pressedOnce.clear();
                 }
                 if (JUMPS==3){
-                    jumps.setText("hyperpace jumps: ✷ ✷ ✷");
-                }    
+                    jumps.setText("hyperspace jumps: ✷ ✷ ✷");
+                }
                 else if (JUMPS==2){
-                    jumps.setText("hyperpace jumps: ✷ ✷ -");
+                    jumps.setText("hyperspace jumps: ✷ ✷ -");
                 }
                 else if (JUMPS==1){
-                    jumps.setText("hyperpace jumps: ✷ - -");
+                    jumps.setText("hyperspace jumps: ✷ - -");
                 }
                 else if (JUMPS==0){
-                    jumps.setText("hyperpace jumps: - - -");
+                    jumps.setText("hyperspace jumps: - - -");
                 }
 
 
@@ -218,7 +214,7 @@ public class SceneController extends SceneFiller{
                         .filter(bullet -> !bullet.isAlive())
                         .toList());
 
-                // check if player hit asteroid - activate respawn and decrease lives
+                // check if player collides with asteroid - activate respawn and decrease lives
 
                 score.setText("score: "+ points);
                 alienBullets.forEach(bullet -> {
@@ -268,7 +264,7 @@ public class SceneController extends SceneFiller{
         // create all static objects
         pane = createBackground();
         Label title = createLabel("Game Info", WIDTH/3.5, HEIGHT/5.0,"header");
-        Label info = createLabel("turn left:\t\tA\nturn right:\tD\nforward:\t\tW\nshoot:\t\tE\nhyperjump:\tJ", WIDTH/3.5, HEIGHT/2.3, "info");
+        Label info = createLabel("turn left:\tA\nturn right:\tD\nforward:\tW\nshoot:\t\tE\nhyperjump:\tJ", WIDTH/3.5, HEIGHT/2.3, "info");
         Button back = createButton("< back", 15, 550);
         Button reset = createButton("reset highscore", 15, 500);
 
