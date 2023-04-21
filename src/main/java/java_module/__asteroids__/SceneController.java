@@ -125,7 +125,7 @@ public class SceneController extends SceneFiller{
             }
         }));
 // set Timeline cycle times
-        bulletTimeline.setCycleCount(10);
+        bulletTimeline.setCycleCount(45);
 // launch Timeline
         bulletTimeline.play();
         pane.getChildren().add(alien.getCharacter());
