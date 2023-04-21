@@ -1,5 +1,6 @@
 package java_module.__asteroids__;
 
+import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
@@ -7,7 +8,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Random;
 
-public class Ship extends GameObject{
+public class Ship extends GameObject implements Movable, Controllable{
     private final static int RESPAWN_WINDOW = 3; // respawn window in seconds
     public static boolean respawnCalled; // respawn call flag
     private LocalDateTime spawned; // creation time to measure respawn window
@@ -24,6 +25,29 @@ public class Ship extends GameObject{
         this.setLocation(x, y);
         this.setMovement(getStartHere());
         isSafe();
+    }
+    public void turnLeft(){
+        // changes orientation of object left
+        this.getCharacter().setRotate(this.getCharacter().getRotate() - 3);
+    }
+    public void turnRight(){
+        // changes orientation of object right
+        this.getCharacter().setRotate(this.getCharacter().getRotate() + 3);
+    }
+    public void setLocation(int x, int y){
+        this.getCharacter().setTranslateX(x);
+        this.getCharacter().setTranslateY(y);
+
+    }
+    public Point2D getLocation(){
+        double x = this.getCharacter().getTranslateX();
+        double y = this.getCharacter().getTranslateY();
+        return new Point2D(x,y);
+    }
+    public Point2D getStartHere(){
+        double x = this.getCharacter().getTranslateX();
+        double y = this.getCharacter().getTranslateY();
+        return new Point2D(x,y);
     }
     public boolean isSafe(){
         // sets character safe for 3 seconds when called

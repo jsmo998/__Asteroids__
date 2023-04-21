@@ -4,7 +4,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
-public class GameObject implements Movement{
+public class GameObject implements Movable{
     private final Polygon character; // variable name for accessing polygon of character
     private Point2D movement; // direction and speed of object
     private final Point2D startHere = new Point2D(0,0); // starting position
@@ -26,14 +26,6 @@ public class GameObject implements Movement{
     public Polygon getCharacter(){
         // returns polygon of character object
         return character;
-    }
-    public void turnLeft(){
-        // changes orientation of object left
-        this.character.setRotate(this.character.getRotate() - 3);
-    }
-    public void turnRight(){
-        // changes orientation of object right
-        this.character.setRotate(this.character.getRotate() + 3);
     }
     public void move(){
         // changes x and y coordinates of object
@@ -72,7 +64,6 @@ public class GameObject implements Movement{
 
         this.movement = this.movement.add(changeX,changeY);
     }
-
     public Point2D getMovement(){
         // returns velocity of object
         return movement;
@@ -97,20 +88,9 @@ public class GameObject implements Movement{
         // set flag value for life
         isAlive = b;
     }
-    public void setLocation(int x, int y){
-        this.getCharacter().setTranslateX(x);
-        this.getCharacter().setTranslateY(y);
-    }
-    public Point2D getLocation(){
-        double x = this.character.getTranslateX();
-        double y = this.character.getTranslateY();
-        return new Point2D(x,y);
-    }
     public boolean beyondScreenBounds(){
         // check if items which don't loop the screen edges have gone beyond them
         return this.character.getTranslateX() < 0 || this.character.getTranslateX() > SceneController.WIDTH || this.character.getTranslateY() < 0 || this.character.getTranslateY() > SceneController.HEIGHT;
     }
-
-
 
 }
