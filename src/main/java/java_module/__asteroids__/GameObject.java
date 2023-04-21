@@ -71,9 +71,6 @@ public class GameObject implements Movement{
         changeY *= 0.05;
 
         this.movement = this.movement.add(changeX,changeY);
-
-        this.getCharacter().setTranslateX(this.getCharacter().getTranslateX()+this.movement.getX());
-        this.getCharacter().setTranslateY(this.getCharacter().getTranslateY()+this.movement.getY());
     }
 
     public Point2D getMovement(){
