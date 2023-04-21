@@ -7,12 +7,12 @@ import java.util.Random;
 
 public class Alien extends GameObject{
     private Point2D target;
-<<<<<<< HEAD
+
     private Point2D movement;
     private static final double SPEED =1 ;
     double changeX = Math.cos(Math.toRadians(20));
     double changeY = Math.sin(Math.toRadians(20));
-=======
+
     public enum AlienSpawn {
         // used to decide which side of the screen the alien will appear
         TOP,
@@ -20,7 +20,7 @@ public class Alien extends GameObject{
         LEFT,
         RIGHT,
     }
->>>>>>> 352c8eb99f37a2dfe80422792332e94e109e43d2
+
     public Alien(int x, int y){
         // create new polygon - same shape as ship
         super(new Polygon(-15, 0, 0, 10, 15, 0, 0, -10), x, y,"alien", ScreenUse.SINGULAR);
