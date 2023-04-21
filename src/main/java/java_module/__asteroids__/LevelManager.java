@@ -88,7 +88,10 @@ public class LevelManager {
         if (this.asteroidList.size()==0){
             this.level.addAndGet(1);
             this.addAsteroids();
-            //TODO: Increase score?
+            if (sc.JUMPS<3){
+                sc.JUMPS+=1;
+            }
+
             return true;}
         return false;
     }
@@ -97,12 +100,3 @@ public class LevelManager {
     }
 
 }
-
-
-// - List of asteroids
-// - Level tracker
-// Methods
-// - Start Level
-//     - Generate Asteroids
-// - Track Level
-// - Increment Level

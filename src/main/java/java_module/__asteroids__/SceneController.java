@@ -21,7 +21,8 @@ public class SceneController extends SceneFiller{
     private Pane pane;
     public static int WIDTH = 800;
     public static int HEIGHT = 600;
-    public int LIVES;
+    public final AtomicInteger LIVES  = new AtomicInteger();
+    public int JUMPS;
     public int highscore;
     private final AtomicInteger points = new AtomicInteger(); // dynamically count points during the game loop
     public void home(Stage stage){
@@ -88,16 +89,17 @@ public class SceneController extends SceneFiller{
         Button exit = createButton("< exit", 15, 550);
         Label level = createLabel("level 1", WIDTH/2.5, 15, "level");
         Label score = createLabel("score: 0", 20, 510, "score");
-        Label lives = createLabel("lives: ♥︎ ♥︎ ♥︎", WIDTH/2.5, 550, "lives");
-
+        Label lives = createLabel("lives: ♥ ♥ ♥", WIDTH*0.3, 550, "lives");
+        Label jumps = createLabel("hyperpace jumps: ✷ ✷ ✷", WIDTH*0.6, 550, "lives");
         // set button functionality
         exit.setOnAction(actionEvent -> home(stage));
         // keep all static objects in list and add to pane
-        Collections.addAll(staticElementsList, exit, level, score, lives);
+        Collections.addAll(staticElementsList, exit, level, score, lives, jumps);
 
         // create player at center
         Ship player = new Ship(WIDTH/2, HEIGHT/2);
-        LIVES = 3;
+        LIVES.set(3);
+        JUMPS = 3;
         alien.update(player);
         LevelManager levelManager = new LevelManager(this, player);
 
@@ -155,8 +157,6 @@ public class SceneController extends SceneFiller{
                 }
                 if (pressedKeys.getOrDefault(KeyCode.W, false)) {
                     player.accelerate();
-                    System.out.println(player.getCharacter().getTranslateX());
-                    System.out.println(player.getCharacter().getTranslateY());
                 }
                 // use separate hash map to read bullet call - clear on input to shoot only one bullet on key press rather than a whole stream
                 if (pressedOnce.getOrDefault(KeyCode.E, false)) {
@@ -173,10 +173,28 @@ public class SceneController extends SceneFiller{
                     pane.getChildren().add(bullet.getCharacter());
                     pressedOnce.clear();
                 }
-                if (pressedKeys.getOrDefault(KeyCode.J, false)){
-                    // flies all around the screen due to animationTimer ------------ wip ------------
-                    player.hyperspaceJump();
+                if (pressedOnce.getOrDefault(KeyCode.J, false)){
+                    // uses same hashmap as bullet call
+                    if (JUMPS>0){
+                        player.hyperspaceJump();
+                        JUMPS-=1;
+                    }
+
+                    pressedOnce.clear();
                 }
+                if (JUMPS==3){
+                    jumps.setText("hyperpace jumps: ✷ ✷ ✷");
+                }    
+                else if (JUMPS==2){
+                    jumps.setText("hyperpace jumps: ✷ ✷ -");
+                }
+                else if (JUMPS==1){
+                    jumps.setText("hyperpace jumps: ✷ - -");
+                }
+                else if (JUMPS==0){
+                    jumps.setText("hyperpace jumps: - - -");
+                }
+
 
                 // call all objects to move
                 player.move();
@@ -201,18 +219,18 @@ public class SceneController extends SceneFiller{
 
                 score.setText("score: "+ points);
                 if(levelManager.playerHitAsteroid(player) && !Ship.respawnCalled){
-                    LIVES -=1;
+                    LIVES.decrementAndGet();
                     player.respawn(WIDTH/2,HEIGHT/2);
                 }
                 if(levelManager.levelup()){
                     level.setText("level: "+levelManager.getLevel().toString());
                 }
 
-                if (player.isAlive() && LIVES==2){
-                    lives.setText("lives: ♥︎ ♥︎ -");
-                } else if (player.isAlive() && LIVES==1){
-                    lives.setText("lives: ♥︎ - -");
-                } else if(player.isAlive() && LIVES==0){
+                if (player.isAlive() && LIVES.get()==2){
+                    lives.setText("lives: ♥ ♥ -");
+                } else if (player.isAlive() && LIVES.get()==1){
+                    lives.setText("lives: ♥ - -");
+                } else if(player.isAlive() && LIVES.get()==0){
                     lives.setText("lives: - - -");
                     player.setLife(false);
                 }
@@ -240,7 +258,7 @@ public class SceneController extends SceneFiller{
         // create all static objects
         pane = createBackground();
         Label title = createLabel("Game Info", WIDTH/3.5, HEIGHT/5.0,"header");
-        Label info = createLabel("turn left:\tA\nturn right:\tD\nforward:\tW\nshoot:\t\tE\nhyperjump:\tJ", WIDTH/3.5, HEIGHT/2.3, "info");
+        Label info = createLabel("turn left:\t\tA\nturn right:\tD\nforward:\t\tW\nshoot:\t\tE\nhyperjump:\tJ", WIDTH/3.5, HEIGHT/2.3, "info");
         Button back = createButton("< back", 15, 550);
         Button reset = createButton("reset highscore", 15, 500);
 
