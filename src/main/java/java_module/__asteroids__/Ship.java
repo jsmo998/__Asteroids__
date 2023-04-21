@@ -2,7 +2,6 @@ package java_module.__asteroids__;
 
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Random;

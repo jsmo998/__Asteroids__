@@ -18,7 +18,7 @@ public class LevelManager {
     private void addAsteroids(){
         Random rnd = new Random();
         for (int i=0; i<this.level.get(); i++){
-            boolean hit = true;
+            boolean hit;
             Asteroid a;
             do {
                 double x = rnd.nextDouble(800);
@@ -27,7 +27,7 @@ public class LevelManager {
                 a = new Asteroid(x, y, size);
                 hit=a.checkHit(this.player.getCharacter());
             }
-            while (hit==true);
+            while (hit);
             this.asteroidList.add(a);
             this.sc.addAsteroid(a);
         }
@@ -62,27 +62,26 @@ public class LevelManager {
         this.asteroidList.remove(a);
     }
 
-    public boolean bulletHitAsteroid(Bullet bullet){
-        boolean hit = false;
+    public void bulletHitAsteroid(Bullet bullet){
+        boolean hit;
         for (Asteroid a: this.asteroidList){
             hit=a.checkHit(bullet.getCharacter());
-            if (hit){
+            if (!hit){
                 this.asteroidHit(a);
                 bullet.setLife(false);
-                return hit;
+                return;
             }
         }
-        return hit;
     }
     public boolean playerHitAsteroid(Ship player){
-        boolean hit = false;
+        boolean hit;
         for (Asteroid a: this.asteroidList){
             hit=a.checkHit(player.getCharacter());
             if (hit){
-                return hit;
+                return true;
             }
         }
-        return hit;
+        return false;
     }
     public boolean levelup(){
         if (this.asteroidList.size()==0){

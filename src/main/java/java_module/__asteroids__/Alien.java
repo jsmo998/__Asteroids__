@@ -3,16 +3,17 @@ package java_module.__asteroids__;
 import javafx.geometry.Point2D;
 import javafx.scene.shape.Polygon;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Dictionary;
 import java.util.Random;
 
 public class Alien extends GameObject{
     private Point2D target;
-    private Point2D movement;
-    double changeX = Math.cos(Math.toRadians(20));
-    double changeY = Math.sin(Math.toRadians(20));
+    public enum AlienSpawn {
+        // used to decide which side of the screen the alien will appear
+        TOP,
+        BOTTOM,
+        LEFT,
+        RIGHT,
+    }
     public Alien(int x, int y){
         // create new polygon - same shape as ship
         super(new Polygon(-15, 0, 0, 10, 15, 0, 0, -10), x, y,"alien", ScreenUse.SINGULAR);
