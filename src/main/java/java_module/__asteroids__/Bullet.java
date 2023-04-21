@@ -5,6 +5,7 @@ import javafx.scene.shape.Polygon;
 public class Bullet extends GameObject{
     public double directionX;
     public double directionY;
+    private boolean directionSet;
 
     public Bullet(int x, int y){
         // constructor creates new polygon in Bullet dimensions
@@ -18,10 +19,10 @@ public class Bullet extends GameObject{
         }
         super.move();
     }
-
     public void setDirection(double translateX,double translateY) {
         directionX = translateX;
         directionY = translateY;
+        directionSet = true;
     }
 
 }

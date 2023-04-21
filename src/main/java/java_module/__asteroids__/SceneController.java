@@ -88,7 +88,7 @@ public class SceneController extends SceneFiller{
         Label level = createLabel("level 1", WIDTH/2.5, 15, "level");
         Label score = createLabel("score: 0", 20, 510, "score");
         Label lives = createLabel("lives: ♥ ♥ ♥", WIDTH*0.3, 550, "lives");
-        Label jumps = createLabel("hyperpace jumps: ✷ ✷ ✷", WIDTH*0.6, 550, "lives");
+        Label jumps = createLabel("hyperspace jumps: ✷ ✷ ✷", WIDTH*0.6, 550, "lives");
         // set button functionality
         exit.setOnAction(actionEvent -> home(stage));
         // keep all static objects in list and add to pane
@@ -161,7 +161,6 @@ public class SceneController extends SceneFiller{
                     Bullet bullet = new Bullet((int) player.getCharacter().getTranslateX(), (int) player.getCharacter().getTranslateY());
                     bullet.getCharacter().setRotate(player.getCharacter().getRotate());
                     bulletList.add(bullet);
-
                     bullet.accelerate();
                     bullet.setMovement(bullet.getMovement().normalize().multiply(3));
 
@@ -177,20 +176,19 @@ public class SceneController extends SceneFiller{
                         player.hyperspaceJump();
                         JUMPS-=1;
                     }
-
                     pressedOnce.clear();
                 }
                 if (JUMPS==3){
-                    jumps.setText("hyperpace jumps: ✷ ✷ ✷");
+                    jumps.setText("hyperspace jumps: ✷ ✷ ✷");
                 }
                 else if (JUMPS==2){
-                    jumps.setText("hyperpace jumps: ✷ ✷ -");
+                    jumps.setText("hyperspace jumps: ✷ ✷ -");
                 }
                 else if (JUMPS==1){
-                    jumps.setText("hyperpace jumps: ✷ - -");
+                    jumps.setText("hyperspace jumps: ✷ - -");
                 }
                 else if (JUMPS==0){
-                    jumps.setText("hyperpace jumps: - - -");
+                    jumps.setText("hyperspace jumps: - - -");
                 }
 
 

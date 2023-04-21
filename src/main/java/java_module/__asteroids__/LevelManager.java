@@ -63,10 +63,10 @@ public class LevelManager {
     }
 
     public void bulletHitAsteroid(Bullet bullet){
-        boolean hit;
+        boolean hit = true;
         for (Asteroid a: this.asteroidList){
             hit=a.checkHit(bullet.getCharacter());
-            if (!hit){
+            if (hit){
                 this.asteroidHit(a);
                 bullet.setLife(false);
                 return;
@@ -74,14 +74,14 @@ public class LevelManager {
         }
     }
     public boolean playerHitAsteroid(Ship player){
-        boolean hit;
+        boolean hit = false;
         for (Asteroid a: this.asteroidList){
             hit=a.checkHit(player.getCharacter());
             if (hit){
-                return true;
+                return hit;
             }
         }
-        return false;
+        return hit;
     }
     public boolean levelup(){
         if (this.asteroidList.size()==0){
