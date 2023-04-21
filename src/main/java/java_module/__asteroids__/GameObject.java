@@ -6,7 +6,7 @@ import javafx.scene.shape.Polygon;
 
 public class GameObject implements Movement{
     private final Polygon character; // variable name for accessing polygon of character
-    private Point2D movement; // direction and speed of object
+    private Point2D movement; // direction and speed of object - velocity
     private final Point2D startHere = new Point2D(0,0); // starting position
     private boolean isAlive; // flag to check life
     private final ScreenUse time;
@@ -29,11 +29,11 @@ public class GameObject implements Movement{
     }
     public void turnLeft(){
         // changes orientation of object left
-        this.character.setRotate(this.character.getRotate() - 3);
+        this.character.setRotate(this.character.getRotate() - 4);
     }
     public void turnRight(){
         // changes orientation of object right
-        this.character.setRotate(this.character.getRotate() + 3);
+        this.character.setRotate(this.character.getRotate() + 4);
     }
     public void move(){
         // changes x and y coordinates of object
@@ -71,9 +71,6 @@ public class GameObject implements Movement{
         changeY *= 0.05;
 
         this.movement = this.movement.add(changeX,changeY);
-
-        this.getCharacter().setTranslateX(this.getCharacter().getTranslateX()+this.movement.getX());
-        this.getCharacter().setTranslateY(this.getCharacter().getTranslateY()+this.movement.getY());
     }
 
     public Point2D getMovement(){
@@ -104,16 +101,9 @@ public class GameObject implements Movement{
         this.getCharacter().setTranslateX(x);
         this.getCharacter().setTranslateY(y);
     }
-    public Point2D getLocation(){
-        double x = this.character.getTranslateX();
-        double y = this.character.getTranslateY();
-        return new Point2D(x,y);
-    }
+
     public boolean beyondScreenBounds(){
         // check if items which don't loop the screen edges have gone beyond them
         return this.character.getTranslateX() < 0 || this.character.getTranslateX() > SceneController.WIDTH || this.character.getTranslateY() < 0 || this.character.getTranslateY() > SceneController.HEIGHT;
     }
-
-
-
 }

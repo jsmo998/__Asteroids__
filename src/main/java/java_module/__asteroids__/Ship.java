@@ -33,8 +33,8 @@ public class Ship extends GameObject{
     public void move(){
         // extends super.move() to include respawn
         if (isSafe()){
-                respawnCalled = true;
-                this.getCharacter().setStroke(Color.GOLD);
+            respawnCalled = true;
+            this.getCharacter().setStroke(Color.GOLD);
         }
         else {
             respawnCalled = false;
@@ -49,8 +49,5 @@ public class Ship extends GameObject{
         var rndX = rnd.nextInt(SceneController.WIDTH);
         var rndY = rnd.nextInt(SceneController.HEIGHT);
         this.respawn(rndX, rndY);
-    }
-    public void checkJump(){
-
     }
 }
