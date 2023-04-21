@@ -109,19 +109,22 @@ public class SceneController extends SceneFiller{
         staticElementsList.forEach(node -> pane.getChildren().add(node));
         //set different rotate of each bullet and time gap between them, so they can show seperately on the screen
         Timeline bulletTimeline = new Timeline(new KeyFrame(Duration.millis(500), event -> {
-            Bullet alienBullet = alien.shootBullet();
-            alienBullet.setDirection(player.getCharacter().getTranslateX(),player.getCharacter().getTranslateY());
+            if (!alien.beyondScreenBounds()){
+                if(alienBullets.size()<5){
+                    Bullet alienBullet = alien.shootBullet(player);
+                    alienBullet.setDirection(player.getCharacter().getTranslateX(),player.getCharacter().getTranslateY());
+                    alienBullet.getCharacter().setRotate(alien.getCharacter().getRotate());
+                    alienBullets.add(alienBullet);
+                    alienBullet.accelerate();
+                    alienBullet.setMovement(alienBullet.getMovement().normalize().multiply(3));
 
-            alienBullet.getCharacter().setRotate(alien.getCharacter().getRotate());
+                    // add player velocity to bullet so that bullet is always faster than ship
+                    var v = player.getMovement().add(alienBullet.getMovement());
+                    alienBullet.setMovement(v);
 
-            alienBullets.add(alienBullet);
-            alienBullet.accelerate();
-            alienBullet.setMovement(alienBullet.getMovement().normalize().multiply(3));
-
-            // add player velocity to bullet so that bullet is always faster than ship
-
-
-            pane.getChildren().add(alienBullet.getCharacter());
+                    pane.getChildren().add(alienBullet.getCharacter());
+                }
+            }
         }));
 // set Timeline cycle times
         bulletTimeline.setCycleCount(10);
@@ -218,6 +221,13 @@ public class SceneController extends SceneFiller{
                 // check if player hit asteroid - activate respawn and decrease lives
 
                 score.setText("score: "+ points);
+                alienBullets.forEach(bullet -> {
+                    if(bullet.checkHit(player.getCharacter())){
+                        LIVES .decrementAndGet();
+                        player.respawn(WIDTH/2,HEIGHT/2);
+                    }
+
+                });
                 if(levelManager.playerHitAsteroid(player) && !Ship.respawnCalled){
                     LIVES.decrementAndGet();
                     player.respawn(WIDTH/2,HEIGHT/2);
