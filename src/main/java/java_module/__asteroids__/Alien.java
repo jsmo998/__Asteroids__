@@ -5,7 +5,7 @@ import javafx.scene.shape.Polygon;
 
 import java.util.Random;
 
-public class Alien extends GameObject{
+public class Alien extends GameObject implements Movable{
     private Point2D target;
     private static final double SPEED =1 ;
     public enum AlienSpawn {

@@ -1,9 +1,8 @@
 package java_module.__asteroids__;
 
-import javafx.geometry.Point2D;
 import javafx.scene.shape.Polygon;
 
-public class Bullet extends GameObject{
+public class Bullet extends GameObject implements Movable{
     public double directionX;
     public double directionY;
 
