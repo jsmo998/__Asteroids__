@@ -105,9 +105,9 @@ public class SceneController extends SceneFiller{
         staticElementsList.forEach(node -> pane.getChildren().add(node));
                 Timeline bulletTimeline = new Timeline(new KeyFrame(Duration.millis(500), event -> {
                     if (!alien.beyondScreenBounds()){
-                        Bullet alienBullet = alien.shootBulletTowardsPlayer(player);
-                        alienBullet.setDirection(player.getCharacter().getTranslateX(),player.getCharacter().getTranslateY());
-                        alienBullet.getCharacter().setRotate(alien.getCharacter().getRotate());
+                        Bullet alienBullet = alien.shootBullet();
+//                        alienBullet.setDirection(player.getCharacter().getTranslateX(),player.getCharacter().getTranslateY());
+//                        alienBullet.getCharacter().setRotate(alien.getCharacter().getRotate());
                         alienBullets.add(alienBullet);
                         alienBullet.accelerate();
                         alienBullet.setMovement(alienBullet.getMovement().normalize().multiply(3));
@@ -183,7 +183,6 @@ public class SceneController extends SceneFiller{
                 bulletList.forEach(Bullet::move);
                 alienBullets.forEach(Bullet::move);
                 alien.move();
-                alien.accelerate();
 
                 // check if any bullets hit asteroids
                 ArrayList<Bullet> bulletListCopy = new ArrayList<>(bulletList);
