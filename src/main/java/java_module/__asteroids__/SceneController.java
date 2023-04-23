@@ -331,18 +331,27 @@ public class SceneController extends SceneFiller{
         Button reset = createButton("reset high-scores", 15, 500);
 
         ArrayList<String> highscoreString = highscoreReader.getHighscoreString();
-        System.out.println(highscoreString);
-        double i = 0.1;
-        for (String keyValuePair : highscoreString){
-            Label s = createLabel(keyValuePair, WIDTH/4.0, HEIGHT*(0.5-i), "fame");
+
+        if (highscoreReader.reset){
+            Label s = createLabel("no highscores", WIDTH/4.0, HEIGHT/2.5, "fame");
             pane.getChildren().add(s);
-            i -= 0.06;
+            highscoreString.clear();
+            highscoreReader.reset = false;
         }
+        else {
+            double i = 0.1;
+            for (String keyValuePair : highscoreString){
+                Label s = createLabel(keyValuePair, WIDTH/4.0, HEIGHT*(0.5-i), "fame");
+                pane.getChildren().add(s);
+                i -= 0.06;
+            }
+
+        }
+
         home.setOnAction(actionEvent -> home(stage));
         reset.setOnAction(actionEvent -> {
             highscoreReader.resetHighscores();
             home(stage);
-            highscoreString.clear();
         });
 
         List<Node> staticElements = new ArrayList<>();
