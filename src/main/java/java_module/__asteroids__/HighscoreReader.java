@@ -8,15 +8,13 @@ import java.util.*;
 
 public class HighscoreReader {
     private final HashMap<String, Integer> highscores = new HashMap<>();
+    public boolean reset;
     public void createHighscoreFile(){
         // create highscores file if not exists
         try {
             File highscore = new File("highscores.txt");
             if (highscore.createNewFile()){
                 BufferedWriter writer = new BufferedWriter(new FileWriter("highscores.txt"));
-                for (int i = 0; i < 10; i++){
-                    writer.append("--- 000");
-                }
                 writer.append("--- 000");
                 writer.close();
             }
@@ -26,6 +24,7 @@ public class HighscoreReader {
         }
     }
     public Integer returnHighscore(){
+        // return highest value from file
         try {
             Scanner scanner = new Scanner(new File("highscores.txt"));
             while (scanner.hasNextLine()){
@@ -43,19 +42,20 @@ public class HighscoreReader {
         return Collections.max(highscores.values());
     }
     public void resetHighscores(){
+        reset = true;
+        // reset all values to 0
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter("highscores.txt"));
-            for (int i=0; i<9; i++){
-                writer.append("--- 000\n");
-            }
             writer.append("--- 000");
             writer.close();
+            highscores.clear();
         } catch (IOException e){
-            System.out.println("An error occurred when creating highscores file.");
+            System.out.println("An error occurred when updating highscores file.");
             e.printStackTrace();
         }
     }
     public ArrayList<String> getHighscoreString(){
+        // return string of sorted highscores for displaying
         ArrayList<String> highscoreString = new ArrayList<>(highscores.size());
         LinkedHashMap<String, Integer> h = sortedHighscores(highscores);
         for (Map.Entry<String, Integer> entry : h.entrySet()){
@@ -67,6 +67,7 @@ public class HighscoreReader {
         return highscoreString;
     }
     private LinkedHashMap<String, Integer> sortedHighscores(HashMap<String, Integer> highscores){
+        // sort highscores by value for ranking
         List<Map.Entry<String, Integer>> list = new LinkedList<>(highscores.entrySet());
 
         list.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
@@ -78,9 +79,11 @@ public class HighscoreReader {
         return sortedHighscores;
     }
     public void addHighscore(String username, Integer score){
+        // add player name and score to file
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter("highscores.txt", true));
             String newScore = "\n" + username + " " + score.toString();
+            highscores.put(username, score);
             writer.append(newScore);
             writer.close();
 
