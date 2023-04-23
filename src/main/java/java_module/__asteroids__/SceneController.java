@@ -243,11 +243,6 @@ public class SceneController extends SceneFiller{
                     alienBullets.add(alienBullet);
                     alienBullet.accelerate();
                     alienBullet.setMovement(alienBullet.getMovement().normalize().multiply(3));
-
-                    // add player velocity to bullet so that bullet is always faster than ship
-                    // var v = player.getMovement().add(alienBullet.getMovement());
-                    // alienBullet.setMovement(v);
-
                     pane.getChildren().add(alienBullet.getCharacter());
             }
             else{
@@ -291,8 +286,6 @@ public class SceneController extends SceneFiller{
 
     // screen to display when game over:
     public void gameOver(Stage stage){
-
-        // add score to list of highscores if list < 10 and score > min.list.values()
         int currentScore = points.get();
 
         // create all static objects
