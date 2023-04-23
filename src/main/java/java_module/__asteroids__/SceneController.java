@@ -1,6 +1,8 @@
 package java_module.__asteroids__;
 
 import javafx.animation.AnimationTimer;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -8,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -20,9 +23,14 @@ public class SceneController extends SceneFiller{
     private Pane pane;
     public static int WIDTH = 800;
     public static int HEIGHT = 600;
-    public int LIVES;
+    public final AtomicInteger LIVES  = new AtomicInteger();
+    public int JUMPS;
     public int highscore;
+    public String LEVEL;
     private final AtomicInteger points = new AtomicInteger(); // dynamically count points during the game loop
+    private boolean isgame;
+    List<Bullet> alienBullets=new ArrayList<>();
+
     public void home(Stage stage){
         //method to show home screen of game
 
@@ -76,34 +84,35 @@ public class SceneController extends SceneFiller{
         stage.show();
     }
     public void startGame(Stage stage){
-
         // method to start game loop
-
+        points.set(0);
         List<Bullet> bulletList = new ArrayList<>();
         List<Node> staticElementsList = new ArrayList<>();
+    
 
         // create and add all static elements
         pane = createBackground();
-        LevelManager levelManager = new LevelManager(this);
         Button exit = createButton("< exit", 15, 550);
-        Label level = createLabel("level "+levelManager.getLevel().get(), 20, 400, "level");
+        Label level = createLabel("level 1", WIDTH/2.5, 15, "level");
         Label score = createLabel("score: 0", 20, 510, "score");
-        Label lives = createLabel("lives: ♥︎ ♥︎ ♥︎", WIDTH/3.0, 550, "lives");
+        Label lives = createLabel("lives: ♥ ♥ ♥", WIDTH*0.3, 550, "lives");
+        Label jumps = createLabel("hyperspace jumps: ✷ ✷ ✷", WIDTH*0.6, 550, "lives");
 
-        // set button functionality
-        exit.setOnAction(actionEvent -> home(stage));
         // keep all static objects in list and add to pane
-        Collections.addAll(staticElementsList, exit, level, score, lives);
+        Collections.addAll(staticElementsList, exit, level, score, lives, jumps);
 
         // create player at center
         Ship player = new Ship(WIDTH/2, HEIGHT/2);
-        LIVES = 3;
-
+        LIVES.set(3);
+        JUMPS = 3;
+        LevelManager levelManager = new LevelManager(this, player);
 
 
         // add all objects to pane
         pane.getChildren().add(player.getCharacter());
         staticElementsList.forEach(node -> pane.getChildren().add(node));
+        //set different rotate of each bullet and time gap between them, so they can show seperately on the screen
+
 
         Scene scene = new Scene(pane);
         stage.setTitle("Asteroids");
@@ -123,16 +132,10 @@ public class SceneController extends SceneFiller{
         });
 
 
+
         AnimationTimer gameLoop = new AnimationTimer(){
             public void handle(long now){
-                if (pressedOnce.getOrDefault(KeyCode.K, false)){
-                    Alien enemy = Alien.spawnRandom();
-                    enemy.update(player);
-                    pane.getChildren().add(enemy.shootBullet().getCharacter());
-                    pane.getChildren().add(enemy.getCharacter());
-                    enemy.move();
-                    pressedOnce.clear();
-                }
+                isgame=true;               
                 if (pressedKeys.getOrDefault(KeyCode.A, false)) {
                     player.turnLeft();
                 }
@@ -147,7 +150,6 @@ public class SceneController extends SceneFiller{
                     Bullet bullet = new Bullet((int) player.getCharacter().getTranslateX(), (int) player.getCharacter().getTranslateY());
                     bullet.getCharacter().setRotate(player.getCharacter().getRotate());
                     bulletList.add(bullet);
-
                     bullet.accelerate();
                     bullet.setMovement(bullet.getMovement().normalize().multiply(3));
 
@@ -157,22 +159,43 @@ public class SceneController extends SceneFiller{
                     pane.getChildren().add(bullet.getCharacter());
                     pressedOnce.clear();
                 }
-                if (pressedKeys.getOrDefault(KeyCode.J, false)){
-                    // flies all around the screen due to animationTimer ------------ wip ------------
-                    player.hyperspaceJump();
+                if (pressedOnce.getOrDefault(KeyCode.J, false)){
+                    // uses same hashmap as bullet call
+                    if (JUMPS>0){
+                        player.hyperspaceJump();
+                        JUMPS-=1;
+                    }
+                    pressedOnce.clear();
                 }
+                if (JUMPS==3){
+                    jumps.setText("hyperspace jumps: ✷ ✷ ✷");
+                }
+                else if (JUMPS==2){
+                    jumps.setText("hyperspace jumps: ✷ ✷ -");
+                }
+                else if (JUMPS==1){
+                    jumps.setText("hyperspace jumps: ✷ - -");
+                }
+                else if (JUMPS==0){
+                    jumps.setText("hyperspace jumps: - - -");
+                }
+                
+                levelManager.spawnChance();
 
                 // call all objects to move
                 player.move();
                 levelManager.moveAsteroids();
                 bulletList.forEach(Bullet::move);
+                alienBullets.forEach(Bullet::move);
+                levelManager.moveAliens();
+                //alien.accelerate();
 
                 // check if any bullets hit asteroids
                 ArrayList<Bullet> bulletListCopy = new ArrayList<>(bulletList);
-                bulletListCopy.forEach(bullet -> {
-                    levelManager.bulletHitAsteroid(bullet);
-                });
-                // remove bullets and asteroids from game if they collide
+                bulletListCopy.forEach(levelManager::bulletHitAsteroid);
+                bulletListCopy.forEach(levelManager::bulletHitAlien);
+                
+                // remove bullets from game if they collide with enemies
                 bulletList.stream()
                         .filter(bullet -> !bullet.isAlive())
                         .forEach(bullet -> pane.getChildren().remove(bullet.getCharacter()));
@@ -180,30 +203,51 @@ public class SceneController extends SceneFiller{
                         .filter(bullet -> !bullet.isAlive())
                         .toList());
 
-                // check if player hit asteroid - activate respawn and decrease lives
-                score.setText("score: "+ points.toString());
+                //remove aliens that leave screen bounds
+                levelManager.alienList.stream()
+                        .filter(alien -> !alien.isAlive())
+                        .forEach(alien -> pane.getChildren().remove(alien.getCharacter()));
+                levelManager.alienList.removeAll(levelManager.alienList.stream()
+                        .filter(alien -> !alien.isAlive())
+                        .toList());
+                
+                score.setText("score: "+ points);
+
+                // check if player collides with asteroid or bullets - activate respawn and decrease lives
+                alienBullets.forEach(bullet -> {
+                    if(bullet.checkHit(player.getCharacter()) && !player.isSafe()){
+                        LIVES .decrementAndGet();
+                        player.respawn(WIDTH/2,HEIGHT/2);
+                    }
+
+                });
                 if(levelManager.playerHitAsteroid(player) && !Ship.respawnCalled){
-                    LIVES -=1;
+                    LIVES.decrementAndGet();
                     player.respawn(WIDTH/2,HEIGHT/2);
                 }
-                if (levelManager.levelup()){                
+                if(levelManager.levelup()){
                     level.setText("level: "+levelManager.getLevel().toString());
                 }
-                if (player.isAlive() && LIVES==2){
-                    lives.setText("lives: ♥︎ ♥︎ -");
-                } else if (player.isAlive() && LIVES==1){
-                    lives.setText("lives: ♥︎ - -");
-                } else if(player.isAlive() && LIVES==0){
+
+                if (player.isAlive() && LIVES.get()==2){
+                    lives.setText("lives: ♥ ♥ -");
+                } else if (player.isAlive() && LIVES.get()==1){
+                    lives.setText("lives: ♥ - -");
+                } else if(player.isAlive() && LIVES.get()==0){
                     lives.setText("lives: - - -");
+                    LEVEL = levelManager.getLevel().toString();
                     player.setLife(false);
                 }
                 if (!player.isAlive()) {
                     stop();
+                    isgame=false;
                     System.out.println("you died");
                     gameOver(stage);
                 }
             }
         };
+        // set button functionality
+        exit.setOnAction(actionEvent -> {home(stage); gameLoop.stop(); isgame=false;});
         gameLoop.start();
     }
     public void addAsteroid(Asteroid a){
@@ -212,6 +256,36 @@ public class SceneController extends SceneFiller{
     public void removeAsteroid(Asteroid a){
         pane.getChildren().remove(a.getCharacter());
     }
+    public void addAlien(Alien a, Ship player){
+        pane.getChildren().add(a.getCharacter());
+        Timeline bulletTimeline = new Timeline(new KeyFrame(Duration.millis(500), event -> {
+            if (a.isAlive() && isgame){
+                    Bullet alienBullet = a.shootBullet(player);
+                    alienBullet.setDirection(player.getCharacter().getTranslateX(),player.getCharacter().getTranslateY());
+                    alienBullet.getCharacter().setRotate(a.getCharacter().getRotate());
+                    alienBullets.add(alienBullet);
+                    alienBullet.accelerate();
+                    alienBullet.setMovement(alienBullet.getMovement().normalize().multiply(3));
+
+                    // add player velocity to bullet so that bullet is always faster than ship
+                    // var v = player.getMovement().add(alienBullet.getMovement());
+                    // alienBullet.setMovement(v);
+
+                    pane.getChildren().add(alienBullet.getCharacter());
+            }
+            else{
+               a.setLife(false);
+            }
+        }));
+// set Timeline cycle times
+        bulletTimeline.setCycleCount(1000);
+// launch Timeline
+        bulletTimeline.play();
+    }
+    public void removeAlien(Alien a){
+        pane.getChildren().remove(a.getCharacter());
+    }
+
     public void addPoints(int numpoints){
         this.points.addAndGet(numpoints);
     }
@@ -276,7 +350,7 @@ public class SceneController extends SceneFiller{
         // create all static objects
         pane = createBackground();
         Label title = createLabel("Game Info", WIDTH/3.5, HEIGHT/5.0,"header");
-        Label info = createLabel("move:\t\tA & D\nthrust:\t\tW\nshoot:\t\tE\nhyperjump:\tJ", WIDTH/3.0, HEIGHT/2.3, "info");
+        Label info = createLabel("turn left:\t\tA\nturn right:\tD\nforward:\t\tW\nshoot:\t\tE\nhyperjump:\tJ", WIDTH/3.5, HEIGHT/2.3, "info");
         Button back = createButton("< back", 15, 550);
         Button reset = createButton("reset highscore", 15, 500);
 
@@ -319,9 +393,10 @@ public class SceneController extends SceneFiller{
             throw new RuntimeException(e);
         }
         // create all static objects
-        pane = createBackground();
+        Pane pane = createBackground();
         Label title = createLabel("Game Over", WIDTH/3.5, HEIGHT/5.0,"overHeader");
         Label scoreboard = createLabel("score: "+points.get(), WIDTH/3.0, HEIGHT/2.3, "scoreboard");
+        Label levelboard = createLabel("level: "+LEVEL, WIDTH/3.0, HEIGHT/1.9, "levelboard");
         Button home = createButton("< home", 15, 550);
 
         //set button functionality
@@ -329,7 +404,7 @@ public class SceneController extends SceneFiller{
 
         // keep all static objects in list and add to pane
         List<Node> staticElementsList = new ArrayList<>();
-        Collections.addAll(staticElementsList, title, scoreboard, home);
+        Collections.addAll(staticElementsList, title, scoreboard, home, levelboard);
         staticElementsList.forEach(node -> pane.getChildren().add(node));
 
         Scene scene = new Scene(pane);

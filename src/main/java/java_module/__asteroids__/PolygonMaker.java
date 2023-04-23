@@ -12,7 +12,7 @@ public class PolygonMaker {
 
         // set size depending on desired asteroid
         switch (size){
-            case SMALL -> scale = 10;
+            case SMALL -> scale = 13;
             case MEDIUM -> scale = 25;
             case LARGE -> scale = 40;
         }

@@ -1,5 +1,6 @@
 package java_module.__asteroids__;
 
+import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
@@ -7,13 +8,14 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Random;
 
-public class Ship extends GameObject{
+public class Ship extends GameObject implements Controllable{
     private final static int RESPAWN_WINDOW = 3; // respawn window in seconds
     public static boolean respawnCalled; // respawn call flag
     private LocalDateTime spawned; // creation time to measure respawn window
+    private final Point2D startHere = new Point2D(0,0); // starting position
     public Ship(int x, int y){
         // constructor creates new polygon, sets spawn time and calls isSafe
-        super(new Polygon(-10,-10,20,0,-10,10), x, y, "ship", ScreenUse.INFINITE);
+        super(new Polygon(-15,-10, 15,0, -15,10), x, y, "ship", ScreenUse.INFINITE);
         this.spawned = LocalDateTime.now();
         isSafe();
     }
@@ -24,10 +26,31 @@ public class Ship extends GameObject{
         this.setMovement(getStartHere());
         isSafe();
     }
+    public void turnLeft(){
+        // changes orientation of object left
+        this.getCharacter().setRotate(this.getCharacter().getRotate() - 3);
+    }
+    public void turnRight(){
+        // changes orientation of object right
+        this.getCharacter().setRotate(this.getCharacter().getRotate() + 3);
+    }
+    public void setLocation(int x, int y){
+        this.getCharacter().setTranslateX(x);
+        this.getCharacter().setTranslateY(y);
+
+    }
+    public Point2D getLocation(){
+        double x = this.getCharacter().getTranslateX();
+        double y = this.getCharacter().getTranslateY();
+        return new Point2D(x,y);
+    }
+    public Point2D getStartHere(){
+        return this.startHere;
+    }
     public boolean isSafe(){
         // sets character safe for 3 seconds when called
-        Duration respawn_time = Duration.between(spawned, LocalDateTime.now());
-        return respawn_time.toSeconds() < RESPAWN_WINDOW;
+        Duration respawnTime = Duration.between(spawned, LocalDateTime.now());
+        return respawnTime.toSeconds() < RESPAWN_WINDOW;
     }
     public void move(){
         // extends super.move() to include respawn

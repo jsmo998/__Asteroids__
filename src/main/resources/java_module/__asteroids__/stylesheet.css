@@ -15,26 +15,9 @@
     -fx-background-color: #0C092A;
     -fx-border-color: white;
 }
-#fame {
-    -fx-font-family: Menlo Regular;
+#fame, #scoreboard, #info, #level, #levelboard {
     -fx-font-size: 30;
 }
-#scoreboard {
-    -fx-font-family: Menlo Regular;
-    -fx-font-size: 30;
-}
-#info {
-    -fx-font-family: Menlo Regular;
-    -fx-font-size: 30;
-}
-#score {
-    -fx-font-family: Menlo Regular;
-    -fx-font-size: 20;
-}
-#lives {
-    -fx-font-family: Menlo Regular;
-    -fx-font-size: 20;
-}
-#level {
+#score, #lives {
     -fx-font-size: 20;
 }
