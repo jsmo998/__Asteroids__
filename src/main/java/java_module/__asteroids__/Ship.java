@@ -15,7 +15,7 @@ public class Ship extends GameObject implements Controllable{
     private final Point2D startHere = new Point2D(0,0); // starting position
     public Ship(int x, int y){
         // constructor creates new polygon, sets spawn time and calls isSafe
-        super(new Polygon(-10,-10,20,0,-10,10), x, y, "ship", ScreenUse.INFINITE);
+        super(new Polygon(-15,-10, 15,0, -15,10), x, y, "ship", ScreenUse.INFINITE);
         this.spawned = LocalDateTime.now();
         isSafe();
     }
