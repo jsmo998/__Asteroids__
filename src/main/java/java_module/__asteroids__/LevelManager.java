@@ -43,15 +43,13 @@ public class LevelManager {
     }
 
     public void spawnChance(){
-
         if (this.level.get()>1){
             Random rnd = new Random();
             int i = rnd.nextInt(spawnChance);
             if (i==0){
-                System.out.println("Alien time");
                 Alien alien= Alien.spawnRandom();
                 this.addAliens(alien);
-                sc.addAlien(alien);
+                sc.addAlien(alien, this.player);
             }
         }
     }
@@ -106,7 +104,6 @@ public class LevelManager {
         for (Alien a: this.alienList){
             hit=a.checkHit(bullet.getCharacter());
             if (hit){
-                System.out.println("Ladies and gentlemen, we got 'em");
                 this.alienHit(a);
                 bullet.setLife(false);
                 return hit;
@@ -147,7 +144,6 @@ public class LevelManager {
             this.level.addAndGet(1);
             this.addAsteroids();
             this.spawnChance=(int)Math.round(5000/Math.log(this.level.get()));
-            System.out.println(spawnChance);
             if (sc.JUMPS<3){
                 sc.JUMPS+=1;
             }

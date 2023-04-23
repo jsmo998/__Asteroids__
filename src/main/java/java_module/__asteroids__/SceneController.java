@@ -25,6 +25,8 @@ public class SceneController extends SceneFiller{
     public int highscore;
     public String LEVEL;
     private final AtomicInteger points = new AtomicInteger(); // dynamically count points during the game loop
+    private boolean isgame;
+    List<Bullet> alienBullets=new ArrayList<>();
 
     public void home(Stage stage){
         //method to show home screen of game
@@ -80,9 +82,7 @@ public class SceneController extends SceneFiller{
         points.set(0);
         List<Bullet> bulletList = new ArrayList<>();
         List<Node> staticElementsList = new ArrayList<>();
-        
-
-        List<Bullet> alienBullets=new ArrayList<>();
+    
 
         // create and add all static elements
         pane = createBackground();
@@ -126,33 +126,10 @@ public class SceneController extends SceneFiller{
         });
 
 
-        Alien alien= Alien.spawnRandom();
-        levelManager.addAliens(alien);
-        Timeline bulletTimeline = new Timeline(new KeyFrame(Duration.millis(500), event -> {
-                    if (alien.isAlive()){
-                            Bullet alienBullet = alien.shootBullet(player);
-                            alienBullet.setDirection(player.getCharacter().getTranslateX(),player.getCharacter().getTranslateY());
-                            alienBullet.getCharacter().setRotate(alien.getCharacter().getRotate());
-                            alienBullets.add(alienBullet);
-                            alienBullet.accelerate();
-                            alienBullet.setMovement(alienBullet.getMovement().normalize().multiply(3));
-        
-                            // add player velocity to bullet so that bullet is always faster than ship
-                            // var v = player.getMovement().add(alienBullet.getMovement());
-                            // alienBullet.setMovement(v);
-        
-                            pane.getChildren().add(alienBullet.getCharacter());
-                    }
-                }));
-        // set Timeline cycle times
-                bulletTimeline.setCycleCount(1000);
-        // launch Timeline
-                bulletTimeline.play();
-                pane.getChildren().add(alien.getCharacter());
 
         AnimationTimer gameLoop = new AnimationTimer(){
             public void handle(long now){
-                
+                isgame=true;               
                 if (pressedKeys.getOrDefault(KeyCode.A, false)) {
                     player.turnLeft();
                 }
@@ -257,13 +234,14 @@ public class SceneController extends SceneFiller{
                 }
                 if (!player.isAlive()) {
                     stop();
+                    isgame=false;
                     System.out.println("you died");
                     gameOver(stage);
                 }
             }
         };
         // set button functionality
-        exit.setOnAction(actionEvent -> {home(stage); gameLoop.stop();});
+        exit.setOnAction(actionEvent -> {home(stage); gameLoop.stop(); isgame=false;});
         gameLoop.start();
     }
     public void addAsteroid(Asteroid a){
@@ -272,8 +250,31 @@ public class SceneController extends SceneFiller{
     public void removeAsteroid(Asteroid a){
         pane.getChildren().remove(a.getCharacter());
     }
-    public void addAlien(Alien a){
+    public void addAlien(Alien a, Ship player){
         pane.getChildren().add(a.getCharacter());
+        Timeline bulletTimeline = new Timeline(new KeyFrame(Duration.millis(500), event -> {
+            if (a.isAlive() && isgame){
+                    Bullet alienBullet = a.shootBullet(player);
+                    alienBullet.setDirection(player.getCharacter().getTranslateX(),player.getCharacter().getTranslateY());
+                    alienBullet.getCharacter().setRotate(a.getCharacter().getRotate());
+                    alienBullets.add(alienBullet);
+                    alienBullet.accelerate();
+                    alienBullet.setMovement(alienBullet.getMovement().normalize().multiply(3));
+
+                    // add player velocity to bullet so that bullet is always faster than ship
+                    // var v = player.getMovement().add(alienBullet.getMovement());
+                    // alienBullet.setMovement(v);
+
+                    pane.getChildren().add(alienBullet.getCharacter());
+            }
+            else{
+               a.setLife(false);
+            }
+        }));
+// set Timeline cycle times
+        bulletTimeline.setCycleCount(1000);
+// launch Timeline
+        bulletTimeline.play();
     }
     public void removeAlien(Alien a){
         pane.getChildren().remove(a.getCharacter());
