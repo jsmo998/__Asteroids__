@@ -8,6 +8,9 @@ import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.io.*;
 import java.util.*;
@@ -50,16 +53,19 @@ public class SceneController extends SceneFiller{
         // create and add all static objects for the screen
         pane = createBackground();
         Label title = createLabel("Asteroids", WIDTH/3.5, HEIGHT/5.0, "header");
-        Button start = createButton("start", WIDTH/3.0, HEIGHT/2.2);
-        Button info = createButton("info", WIDTH/3.0, HEIGHT/1.7);
-        Label fame = createLabel("high-score: "+highscore, WIDTH/3.5, HEIGHT/1.3, "fame");
+        Button start = createButton("start", WIDTH/3.0, HEIGHT/2.5);
+        Button info = createButton("info", WIDTH/3.0, HEIGHT/2);
+        Button hall = createButton("Hall of Fame", WIDTH/3.0, HEIGHT/1.66667);
+        Label fame = createLabel("high-score: "+highscore, WIDTH/3.5, HEIGHT/1.4, "fame");
 
         start.setOnAction(actionEvent -> startGame(stage));
         info.setOnAction(actionEvent -> info(stage));
+        hall.setOnAction(actionEvent -> hall(stage));
 
         pane.getChildren().add(title);
         pane.getChildren().add(start);
         pane.getChildren().add(info);
+        pane.getChildren().add(hall);
         pane.getChildren().add(fame);
 
         Scene scene = new Scene(pane);
@@ -210,6 +216,60 @@ public class SceneController extends SceneFiller{
         this.points.addAndGet(numpoints);
     }
 
+    public void hall(Stage stage){
+        //Javafx tables perplex me
+
+        // create all static objects
+        // TableView<String> leaderboard = new TableView<>();
+        
+        // // Add some columns to the table
+        // TableColumn<String, String> nameCol = new TableColumn<>("Name");
+        // TableColumn<String, String> scoreCol = new TableColumn<>("Score");
+        // nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+        // nameCol.setCellValueFactory(new PropertyValueFactory<>(""));
+
+
+        // leaderboard.getColumns().addAll(nameCol, scoreCol);
+
+
+        
+        // // Add some data to the table
+        // leaderboard.getItems().addAll("Row 1", "Row 2", "Row 3");
+        
+        // Create a new pane and add the table to it
+
+
+        pane = createBackground();
+
+        Label title = createLabel("Hall Of Fame", WIDTH/3.5, HEIGHT/5.0,"header");
+        Label info = createLabel("pretend there's a leadboard here", WIDTH/3.0, HEIGHT/2.3, "info");
+        Label firstname = createLabel("1 \t"+"GUYWHOCAMEFIRST", WIDTH*0.2, HEIGHT/2.3, "info");
+        Label firstscore = createLabel("bestscore", WIDTH*0.6, HEIGHT/2.3, "info");
+        Button back = createButton("< back", 15, 550);
+        Button reset = createButton("reset highscore", 15, 500);
+
+        back.setOnAction(actionEvent -> home(stage));
+        reset.setOnAction(actionEvent -> {
+            try {
+                PrintWriter writer = new PrintWriter("highscores.txt");
+                writer.println("000");
+                writer.close();
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+            home(stage);
+        });
+                // keep all static objects in list and add to pane
+                List<Node> staticElementsList = new ArrayList<>();
+                //Collections.addAll(staticElementsList, title, info, back, reset, leaderboard);
+                staticElementsList.forEach(node -> pane.getChildren().add(node));
+        
+                Scene scene = new Scene(pane);
+                scene.getStylesheets().add(Objects.requireNonNull(SceneController.class.getResource("stylesheet.css")).toExternalForm());
+                stage.setTitle("Asteroids - Game Info");
+                stage.setScene(scene);
+                stage.show();
+            }
 
     // method to show information screen for game:
     public void info(Stage stage){

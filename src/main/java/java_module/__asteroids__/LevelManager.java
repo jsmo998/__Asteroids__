@@ -83,7 +83,6 @@ public class LevelManager {
         if (this.asteroidList.size()==0){
             this.level.addAndGet(1);
             this.addAsteroids();
-            //TODO: Increase score?
             return true;}
         return false;
     }
