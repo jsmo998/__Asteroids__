@@ -2,6 +2,7 @@ package java_module.__asteroids__;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 
 public class SceneFiller {
@@ -27,5 +28,12 @@ public class SceneFiller {
         label.setTranslateY(y);
         label.setId(i);
         return label;
+    }
+    public TextField creatTextField(String s, double x, double y, String i){
+        TextField text = new TextField(s);
+        text.setTranslateX(x);
+        text.setTranslateY(y);
+        text.setId(i);
+        return text;
     }
 }

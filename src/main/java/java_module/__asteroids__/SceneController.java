@@ -3,16 +3,18 @@ package java_module.__asteroids__;
 import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -22,50 +24,32 @@ public class SceneController extends SceneFiller{
     public static int HEIGHT = 600;
     public final AtomicInteger LIVES  = new AtomicInteger();
     public int JUMPS;
-    public int highscore;
+    public int highscore = 0;
+    private final HighscoreReader highscoreReader = new HighscoreReader();
     public String LEVEL;
     private final AtomicInteger points = new AtomicInteger(); // dynamically count points during the game loop
     public void home(Stage stage){
         //method to show home screen of game
 
-        // create highscores file if not exists
-        try {
-            File highscore = new File("highscores.txt");
-            if (highscore.createNewFile()){
-                PrintWriter writer = new PrintWriter("highscores.txt");
-                writer.println("000");
-                writer.close();
-            }
-        } catch (IOException e){
-            System.out.println("An error occurred when creating highscores file.");
-            e.printStackTrace();
-        }
-
-        // once file exists, read highscore and set variable
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader("highscores.txt"));
-            String line;
-            line = reader.readLine();
-            highscore = Integer.parseInt(line);
-            reader.close();
-        } catch (IOException e){
-            e.printStackTrace();
-        }
+        // create or connect to high-scores file
+        highscoreReader.createHighscoreFile();
+        highscore = highscoreReader.returnHighscore();
 
         // create and add all static objects for the screen
         pane = createBackground();
         Label title = createLabel("Asteroids", WIDTH/3.5, HEIGHT/5.0, "header");
-        Button start = createButton("start", WIDTH/3.0, HEIGHT/2.2);
-        Button info = createButton("info", WIDTH/3.0, HEIGHT/1.7);
-        Label fame = createLabel("high-score: "+highscore, WIDTH/3.5, HEIGHT/1.3, "fame");
+        Button start = createButton("START", WIDTH/3.0, HEIGHT/2.3);
+        Button info = createButton("info >", WIDTH/3.0, HEIGHT/1.8);
+        Button leaderboard = createButton("leaderboard >", WIDTH/3.0, HEIGHT/1.5);
+        Label fame = createLabel("high-score: "+highscore, WIDTH/3.5, HEIGHT/1.2, "fame");
 
         start.setOnAction(actionEvent -> startGame(stage));
         info.setOnAction(actionEvent -> info(stage));
+        leaderboard.setOnAction(actionEvent -> fame(stage));
 
-        pane.getChildren().add(title);
-        pane.getChildren().add(start);
-        pane.getChildren().add(info);
-        pane.getChildren().add(fame);
+        List<Node> staticElements = new ArrayList<>();
+        Collections.addAll(staticElements, title, start, info, leaderboard, fame);
+        staticElements.forEach(node -> pane.getChildren().add(node));
 
         Scene scene = new Scene(pane);
         // link stylesheet
@@ -151,6 +135,10 @@ public class SceneController extends SceneFiller{
 
         AnimationTimer gameLoop = new AnimationTimer(){
             public void handle(long now){
+                if (pressedOnce.getOrDefault(KeyCode.X, false)) {
+                    stop();
+                    gameOver(stage);
+                }
                 if (pressedKeys.getOrDefault(KeyCode.A, false)) {
                     player.turnLeft();
                 }
@@ -260,7 +248,6 @@ public class SceneController extends SceneFiller{
     public void addPoints(int numpoints){
         this.points.addAndGet(numpoints);
     }
-
     // method to show information screen for game:
     public void info(Stage stage){
         // create all static objects
@@ -268,24 +255,13 @@ public class SceneController extends SceneFiller{
         Label title = createLabel("Game Info", WIDTH/3.5, HEIGHT/5.0,"header");
         Label info = createLabel("turn left:\tA\nturn right:\tD\nforward:\tW\nshoot:\t\tE\nhyperjump:\tJ", WIDTH/3.5, HEIGHT/2.3, "info");
         Button back = createButton("< back", 15, 550);
-        Button reset = createButton("reset highscore", 15, 500);
 
         // set button functionality
         back.setOnAction(actionEvent -> home(stage));
-        reset.setOnAction(actionEvent -> {
-            try {
-                PrintWriter writer = new PrintWriter("highscores.txt");
-                writer.println("000");
-                writer.close();
-            } catch (IOException e){
-                e.printStackTrace();
-            }
-            home(stage);
-        });
 
         // keep all static objects in list and add to pane
         List<Node> staticElementsList = new ArrayList<>();
-        Collections.addAll(staticElementsList, title, info, back, reset);
+        Collections.addAll(staticElementsList, title, info, back);
         staticElementsList.forEach(node -> pane.getChildren().add(node));
 
         Scene scene = new Scene(pane);
@@ -298,29 +274,28 @@ public class SceneController extends SceneFiller{
     // screen to display when game over:
     public void gameOver(Stage stage){
 
-        // set new highscore if higher than previous
+        // add score to list of highscores if list < 10 and score > min.list.values()
         int currentScore = points.get();
-        try{
-            if (currentScore > highscore){
-                PrintWriter writer = new PrintWriter("highscores.txt");
-                writer.println(currentScore);
-                writer.close();}
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+
         // create all static objects
         Pane pane = createBackground();
         Label title = createLabel("Game Over", WIDTH/3.5, HEIGHT/5.0,"overHeader");
         Label scoreboard = createLabel("score: "+points.get(), WIDTH/3.0, HEIGHT/2.3, "scoreboard");
         Label levelboard = createLabel("level: "+LEVEL, WIDTH/3.0, HEIGHT/1.9, "levelboard");
+        TextField username = creatTextField("---", WIDTH/2.7, HEIGHT/1.5, "username");
         Button home = createButton("< home", 15, 550);
 
         //set button functionality
         home.setOnAction(actionEvent -> home(stage));
+        EventHandler<ActionEvent> event = e -> {
+            highscoreReader.addHighscore(username.getText(), currentScore);
+            fame(stage);
+        };
+        username.setOnAction(event);
 
         // keep all static objects in list and add to pane
         List<Node> staticElementsList = new ArrayList<>();
-        Collections.addAll(staticElementsList, title, scoreboard, home, levelboard);
+        Collections.addAll(staticElementsList, title, scoreboard, home, levelboard, username);
         staticElementsList.forEach(node -> pane.getChildren().add(node));
 
         Scene scene = new Scene(pane);
@@ -329,5 +304,36 @@ public class SceneController extends SceneFiller{
         stage.setScene(scene);
         stage.show();
 
+    }
+    public void fame(Stage stage){
+        Pane pane = createBackground();
+        Label title = createLabel("Leaderboard", WIDTH/4.0, HEIGHT/5.0, "header");
+        Button home = createButton("< home", 15, 550);
+        Button reset = createButton("reset high-scores", 15, 500);
+
+        ArrayList<String> highscoreString = highscoreReader.getHighscoreString();
+        System.out.println(highscoreString);
+        double i = 2.5;
+        for (String keyValuePair : highscoreString){
+            Label s = createLabel(keyValuePair, WIDTH/4.0, HEIGHT/i, "fame");
+            pane.getChildren().add(s);
+            i -= 0.2;
+        }
+        home.setOnAction(actionEvent -> home(stage));
+        reset.setOnAction(actionEvent -> {
+            highscoreReader.resetHighscores();
+            home(stage);
+            highscoreString.clear();
+        });
+
+        List<Node> staticElements = new ArrayList<>();
+        Collections.addAll(staticElements, home, title, reset);
+        staticElements.forEach(node -> pane.getChildren().add(node));
+
+        Scene scene = new Scene(pane);
+        scene.getStylesheets().add(Objects.requireNonNull(SceneController.class.getResource("stylesheet.css")).toExternalForm());
+        stage.setTitle("Asteroids - Leaderboard");
+        stage.setScene(scene);
+        stage.show();
     }
 }
