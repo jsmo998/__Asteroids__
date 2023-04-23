@@ -4,7 +4,7 @@
 
 .label {
     -fx-font-family: Menlo;
-    -fx-font-size: 60;
+    -fx-font-size: 70;
     -fx-text-fill: white;
 
 }
@@ -13,6 +13,13 @@
     -fx-font-size: 20;
     -fx-text-fill: white;
     -fx-background-color: #0C092A;
+    -fx-border-color: white;
+}
+.text-field {
+    -fx-font-family: Menlo;
+    -fx-font-size: 20;
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
     -fx-border-color: white;
 }
 #fame, #scoreboard, #info, #level, #levelboard {
