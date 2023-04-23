@@ -300,7 +300,8 @@ public class SceneController extends SceneFiller{
         Label title = createLabel("Game Over", WIDTH/3.5, HEIGHT/5.0,"overHeader");
         Label scoreboard = createLabel("score: "+points.get(), WIDTH/3.0, HEIGHT/2.3, "scoreboard");
         Label levelboard = createLabel("level: "+LEVEL, WIDTH/3.0, HEIGHT/1.9, "levelboard");
-        TextField username = creatTextField("---", WIDTH/2.7, HEIGHT/1.5, "username");
+        Label prompt = createLabel("Enter your name:", WIDTH/3.0, HEIGHT/1.6, "levelboard");
+        TextField username = creatTextField("", WIDTH/2.7, HEIGHT/1.4, "username");
         Button home = createButton("< home", 15, 550);
 
         //set button functionality
@@ -313,7 +314,7 @@ public class SceneController extends SceneFiller{
 
         // keep all static objects in list and add to pane
         List<Node> staticElementsList = new ArrayList<>();
-        Collections.addAll(staticElementsList, title, scoreboard, home, levelboard, username);
+        Collections.addAll(staticElementsList, title, scoreboard, home, levelboard, prompt, username);
         staticElementsList.forEach(node -> pane.getChildren().add(node));
 
         Scene scene = new Scene(pane);
@@ -330,6 +331,7 @@ public class SceneController extends SceneFiller{
         Button reset = createButton("reset high-scores", 15, 500);
 
         ArrayList<String> highscoreString = highscoreReader.getHighscoreString();
+
         if (highscoreReader.reset){
             Label s = createLabel("no highscores", WIDTH/4.0, HEIGHT/2.5, "fame");
             pane.getChildren().add(s);
@@ -337,12 +339,13 @@ public class SceneController extends SceneFiller{
             highscoreReader.reset = false;
         }
         else {
-            double i = 2.5;
+            double i = 0.1;
             for (String keyValuePair : highscoreString){
-                Label s = createLabel(keyValuePair, WIDTH/4.0, HEIGHT/i, "fame");
+                Label s = createLabel(keyValuePair, WIDTH/4.0, HEIGHT*(0.5-i), "fame");
                 pane.getChildren().add(s);
-                i -= 0.3;
+                i -= 0.06;
             }
+
         }
 
         home.setOnAction(actionEvent -> home(stage));
