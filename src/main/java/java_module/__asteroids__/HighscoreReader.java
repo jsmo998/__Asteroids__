@@ -79,10 +79,10 @@ public class HighscoreReader {
     }
     public void addHighscore(String username, Integer score){
         try {
-                BufferedWriter writer = new BufferedWriter(new FileWriter("highscores.txt", true));
-                String newScore = "\n" + username + " " + score.toString();
-                writer.append(newScore);
-                writer.close();
+            BufferedWriter writer = new BufferedWriter(new FileWriter("highscores.txt", true));
+            String newScore = "\n" + username + " " + score.toString();
+            writer.append(newScore);
+            writer.close();
 
         } catch (IOException e){
             System.out.println("An error occurred when creating highscores file.");

@@ -317,7 +317,7 @@ public class SceneController extends SceneFiller{
         for (String keyValuePair : highscoreString){
             Label s = createLabel(keyValuePair, WIDTH/4.0, HEIGHT/i, "fame");
             pane.getChildren().add(s);
-            i -= 0.2;
+            i -= 0.3;
         }
         home.setOnAction(actionEvent -> home(stage));
         reset.setOnAction(actionEvent -> {
